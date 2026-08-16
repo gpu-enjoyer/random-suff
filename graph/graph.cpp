@@ -1,5 +1,6 @@
 
 #include "graph.hpp"
+#include <queue>
 
 
 void graph::add_e(
@@ -25,10 +26,35 @@ void graph::demo()
 }
 
 
+void graph::bfs(
+    vector<int>& traversal)
+{
+    traversal.clear();
+    traversal.reserve(v_num());
+    vector<bool> marked(v_num(), false);
+    queue<int> q;
+    for (int v = 0; v < v_num(); ++v) {
+        if (marked[v] == true)
+            continue;
+        marked[v] = true;
+        q.push(v);
+        while(!q.empty()) {
+            v = q.front();
+            q.pop();
+            traversal.push_back(v);
+            for (int vv : adj[v])
+                if (marked[vv] == false) {
+                    marked[vv] = true;
+                    q.push(vv);
+                }
+        }
+    }
+}
+
 void graph::dfs_(
-    vector<int>& traversal,
+    vector<int>&  traversal,
     vector<bool>& marked,
-    int v)
+    int           v)
 {
     marked[v] = true;
     for (int vv : adj[v])
@@ -53,8 +79,10 @@ void graph::topsort(
 {
     dfs(traversal);
     for (int v = 0; v < v_num(); ++v) {
-        if (v >= v_num() - 1 - v) break;
-        swap(traversal[v], traversal[v_num() - 1 - v]);
+        int vv = v_num() - 1 - v;
+        if (v >= vv)
+            break;
+        swap(traversal[v], traversal[vv]);
     }
 }
 
@@ -86,6 +114,9 @@ int main()
     cout << g;
     
     vector<int> traversal;
+
+    g.bfs(traversal);
+    cout << "    bfs: " << traversal << "\n";
 
     g.topsort(traversal);
     cout << "topsort: " << traversal << "\n\n";

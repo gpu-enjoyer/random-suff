@@ -27,6 +27,7 @@ class graph
         void add_e(const int v1, const int v2);
         void demo();
 
+        void bfs(vector<int>& traversal); // vector<int>& distances
         void dfs(vector<int>& traversal);
         void topsort(vector<int>& traversal);
     };
