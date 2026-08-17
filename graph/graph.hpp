@@ -2,16 +2,39 @@
 #pragma once
 
 #include <vector>
+#include <queue>
 #include <iostream>
 
 using namespace std;
+
+
+struct traversal {
+    vector<int> path;
+    vector<bool> marked;
+    traversal() = default;
+    void reset(int v_num);
+};
+
+struct traversal_dfs : traversal {
+    vector<int> t_in, t_out;
+    int timer;
+    void reset(int v_num);
+};
+
+struct traversal_bfs : traversal
+{
+    vector<int> dist;
+    queue<int> q;
+    void reset(int v_num);
+};
+
 
 class graph
 {
     private:
 
         vector<vector<int>> adj_;
-        void dfs_(vector<int>& traversal, vector<bool>& marked, int v);
+        void dfs_(traversal_dfs& tr, int v);
 
     public:
 
@@ -27,9 +50,10 @@ class graph
         void add_e(const int v1, const int v2);
         void demo();
 
-        void bfs(vector<int>& traversal); // vector<int>& distances
-        void dfs(vector<int>& traversal);
-        void topsort(vector<int>& traversal);
+        void dfs(traversal_dfs& tr);
+        void topsort(traversal_dfs& tr);
+        
+        void bfs(traversal_bfs& tr);
     };
 
 template <typename T> ostream& operator<<(ostream& os, const vector<T>& a);
