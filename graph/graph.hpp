@@ -3,58 +3,76 @@
 
 #include <vector>
 #include <queue>
+#include <stack>
 #include <iostream>
 
 using namespace std;
 
 
-struct traversal {
-    vector<int> path;
+struct T {
+    vector<int>  path;
     vector<bool> marked;
-    traversal() = default;
-    void reset(int v_num);
+    T() = default;
+
+    void reset(int v_num) {
+        path.clear();
+        path.reserve(v_num);
+        marked.assign(v_num, false);
+    }
 };
 
-struct traversal_dfs : traversal {
-    vector<int> t_in, t_out;
-    int timer;
-    void reset(int v_num);
-};
-
-struct traversal_bfs : traversal
-{
+struct T_bfs : T {
     vector<int> dist;
-    queue<int> q;
-    void reset(int v_num);
+    queue<int>  q;
+
+    void reset(int v_num) {
+        T::reset(v_num);
+        dist.clear();
+        dist.reserve(v_num);
+        q = queue<int>();
+    }
+};
+
+struct T_topsort : T {
+    stack<int>  topsort;
+    vector<int> t_in, t_out;
+    int         timer;
+
+    void reset(int v_num) {
+        T::reset(v_num);
+        topsort = stack<int>();
+        t_in.assign(v_num, 0);
+        t_out.assign(v_num, 0);
+        timer = 0;
+    }
 };
 
 
-class graph
+class Graph
 {
     private:
 
         vector<vector<int>> adj_;
-        void dfs_(traversal_dfs& tr, int v);
+        void topsort_(T_topsort& T, int v);
 
     public:
 
         const vector<vector<int>>& adj = adj_;
         int v_num() { return adj.size(); }
 
-        graph(const graph& other) : adj_(other.adj_) {}
-        graph& operator=(const graph& other) { adj_ = other.adj_; return *this; }
-        graph() = default;
-        graph(int v_num) : adj_(vector<vector<int>>(v_num)) {}
+        Graph(const Graph& other) : adj_(other.adj_) {}
+        Graph& operator=(const Graph& other) { adj_ = other.adj_; return *this; }
+        Graph() = default;
+        Graph(int v_num) : adj_(vector<vector<int>>(v_num)) {}
 
         void add_v() { adj_.emplace_back(); }
         void add_e(const int v1, const int v2);
         void demo();
 
-        void dfs(traversal_dfs& tr);
-        void topsort(traversal_dfs& tr);
-        
-        void bfs(traversal_bfs& tr);
+        void bfs(T_bfs& T, const int root);
+        void topsort(T_topsort& T);
     };
 
-template <typename T> ostream& operator<<(ostream& os, const vector<T>& a);
-ostream& operator<<(ostream& os, const graph& g);
+ostream& operator<<(ostream& os, const vector<int>& a);
+ostream& operator<<(ostream& os, stack<int> a);
+ostream& operator<<(ostream& os, const Graph& g);
