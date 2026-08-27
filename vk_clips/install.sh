@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+mkdir -p cache
+mkdir -p cllips
+
 python3 -m venv .venv
 
-mkdir cache
-
-.venv/bin/pip install playwright requests websocket-client
+.venv/bin/pip install playwright requests websocket-client aiohttp aiofiles tqdm
 .venv/bin/playwright install --with-deps chromium

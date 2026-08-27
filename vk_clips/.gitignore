@@ -2,3 +2,7 @@
 .venv
 cache/*
 vk-profile
+
+failed.txt
+debug_screenshots/
+
