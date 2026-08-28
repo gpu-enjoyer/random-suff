@@ -18,23 +18,45 @@ void Graph::demo() {
     add_e(6, 4);
 }
 
+void Graph::demo_cyclic() {
+    demo();
+    add_e(3, 0);
+}
 
-void Graph::topsort_(T_topsort& T, int v) {
+
+bool Graph::topsort_(T_topsort& T, int v)
+{
     T.marked[v] = true;
     T.t_in[v] = T.timer++;
     T.path.push_back(v); // vector
+
     for (int vv : adj[v])
-        if (T.marked[vv] == false)
-            topsort_(T, vv);
-    T.topsort.push(v); // stack
+        if (T.marked[vv]) {
+            // Если уже посетили vv и не вышли из нее,
+            //  значит есть путь vv -> v
+            if (T.t_out[vv] == 0)
+                return false;
+        } else {
+            if (!topsort_(T, vv))
+                return false;
+        }
+
+    // Для некоторого v все vv обработаны => выполнять v уже можно.
+    //  v требуется выполнять первее u, положенного в stack ранее.
+    //   ... u v ... <- topsort
+    T.topsort.push(v);
+
     T.t_out[v] = T.timer++;
+    return true;
 }
 
-void Graph::topsort(T_topsort& T) {
+bool Graph::topsort(T_topsort& T) {
     T.reset(v_num());
     for (int v = 0; v < v_num(); ++v)
         if (T.marked[v] == false)
-            topsort_(T, v);
+            if (!topsort_(T, v))
+                return false;
+    return true;
 }
 
 
@@ -86,12 +108,15 @@ ostream& operator<<(ostream& os, const Graph& g) {
 int main()
 {
     Graph g;
-    g.demo();
+    // g.demo();
+    g.demo_cyclic();
     cout << g;
     
     T_topsort t_top;
-    g.topsort(t_top);
-    cout << "topsort: " << t_top.topsort << "\n";
+    if (g.topsort(t_top))
+        cout << "topsort: " << t_top.topsort << "\n";
+    else
+        cout << "topsort: cycle detected \n";
 
     T_bfs t_bfs;
     g.bfs(t_bfs, 0);
