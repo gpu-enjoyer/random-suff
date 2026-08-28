@@ -9,34 +9,36 @@
 using namespace std;
 
 
+// Traversal
 struct T {
-    vector<int> preorder, in, out;
-    static constexpr int t0 = 1;
-    int timer = t0;
+    vector<int> preorder;
     void reset(int v_num) {
         preorder.clear();
         preorder.reserve(v_num);
-        in.assign(v_num, 0);
-        out.assign(v_num, 0);
-        timer = t0;
     }
 };
 
 struct T_bfs : T {
+    static constexpr int dist0 = -1;
     vector<int> dist;
     queue<int>  q;
     void reset(int v_num) {
         T::reset(v_num);
-        dist.clear();
-        dist.reserve(v_num);
+        dist.assign(v_num, dist0);
         q = queue<int>();
     }
 };
 
 struct T_topsort : T {
+    static constexpr int t0 = 1;
+    int timer = t0;
+    vector<int> in, out;
     stack<int>  topsort;
     void reset(int v_num) {
         T::reset(v_num);
+        timer = t0;
+        in.assign(v_num, 0);
+        out.assign(v_num, 0);
         topsort = stack<int>();
     }
 };

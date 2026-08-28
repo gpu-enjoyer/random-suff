@@ -59,20 +59,21 @@ void Graph::bfs(T_bfs& T, const int root) {
     if (root >= v_num())
         throw "root >= v_num";
     T.reset(v_num());
-    for (int v = 0; v < v_num(); ++v) { //
-        v = (v + root) % v_num(); //
-        if (T.in[v] == 0) {
-            T.in[v] = T.timer++;
+    int v;
+    for (int i = 0; i < v_num(); ++i) {
+        v = (root + i) % v_num();            // 1
+        if (T.dist[v] == T.dist0) {
+            T.dist[v] = 0;
             T.q.push(v);
             while(!T.q.empty()) {
-                v = T.q.front(); T.q.pop(); //
+                v = T.q.front(); T.q.pop();  // 2
                 T.preorder.push_back(v);
                 for (int vv : adj[v])
-                    if (T.in[vv] == 0) {
-                        T.in[vv] = T.timer++;
+                    if (T.dist[vv] == T.dist0) {
+                        T.dist[vv] = T.dist[v] + 1;
                         T.q.push(vv);
                     }
-            } 
+            }
         }
     }
 }
