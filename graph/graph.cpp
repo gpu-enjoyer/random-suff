@@ -1,5 +1,6 @@
 
 #include "graph.hpp"
+#include <stdexcept>
 
 
 void Graph::add_e(const int v1, const int v2) {
@@ -57,7 +58,7 @@ bool Graph::topsort(T_topsort& T) {
 
 void Graph::bfs(T_bfs& T, const int root) {
     if (root >= v_num())
-        throw "root >= v_num";
+        throw out_of_range("root >= v_num");
     T.reset(v_num());
     int v;
     for (int i = 0; i < v_num(); ++i) {
