@@ -24,61 +24,55 @@ void Graph::demo_cyclic() {
 }
 
 
-bool Graph::topsort_(T_topsort& T, int v)
-{
-    T.marked[v] = true;
-    T.t_in[v] = T.timer++;
-    T.path.push_back(v); // vector
-
+bool Graph::topsort_(T_topsort& T, int v) {
+    T.in[v] = T.timer++;
+    T.preorder.push_back(v);
     for (int vv : adj[v])
-        if (T.marked[vv]) {
-            // Если уже посетили vv и не вышли из нее,
-            //  значит есть путь vv -> v
-            if (T.t_out[vv] == 0)
-                return false;
-        } else {
+        if (T.in[vv] == 0) {
+            // Еще не посещали vv
             if (!topsort_(T, vv))
                 return false;
         }
-
-    // Для некоторого v все vv обработаны => выполнять v уже можно.
+        else {
+            if (T.out[vv] == 0)
+                // Посетили и не обработали vv => есть путь vv -> v
+                return false;
+        }
+    // Все vv обработаны => выполнять v уже можно.
     //  v требуется выполнять первее u, положенного в stack ранее.
-    //   ... u v ... <- topsort
+    //   [ .. u v .. ] <- topsort
     T.topsort.push(v);
-
-    T.t_out[v] = T.timer++;
+    T.out[v] = T.timer++;
     return true;
 }
 
 bool Graph::topsort(T_topsort& T) {
     T.reset(v_num());
     for (int v = 0; v < v_num(); ++v)
-        if (T.marked[v] == false)
+        if (T.in[v] == 0)
             if (!topsort_(T, v))
                 return false;
     return true;
 }
 
-
 void Graph::bfs(T_bfs& T, const int root) {
     if (root >= v_num())
         throw "root >= v_num";
     T.reset(v_num());
-    int v = root;
-    for (int i = 0; i < v_num(); ++i) {
-        v = (root + i) % v_num();
-        if (T.marked[v] == true)
-            continue;
-        T.marked[v] = true;
-        T.q.push(v);
-        while(!T.q.empty()) {
-            v = T.q.front(); T.q.pop();
-            T.path.push_back(v);
-            for (int vv : adj[v])
-                if (T.marked[vv] == false) {
-                    T.marked[vv] = true;
-                    T.q.push(vv);
-                }
+    for (int v = 0; v < v_num(); ++v) { //
+        v = (v + root) % v_num(); //
+        if (T.in[v] == 0) {
+            T.in[v] = T.timer++;
+            T.q.push(v);
+            while(!T.q.empty()) {
+                v = T.q.front(); T.q.pop(); //
+                T.preorder.push_back(v);
+                for (int vv : adj[v])
+                    if (T.in[vv] == 0) {
+                        T.in[vv] = T.timer++;
+                        T.q.push(vv);
+                    }
+            } 
         }
     }
 }
@@ -108,8 +102,8 @@ ostream& operator<<(ostream& os, const Graph& g) {
 int main()
 {
     Graph g;
-    // g.demo();
-    g.demo_cyclic();
+    g.demo();
+    // g.demo_cyclic();
     cout << g;
     
     T_topsort t_top;
@@ -120,7 +114,7 @@ int main()
 
     T_bfs t_bfs;
     g.bfs(t_bfs, 0);
-    cout << "    bfs: " << t_bfs.path << "\n\n";
+    cout << "    bfs: " << t_bfs.preorder << "\n\n";
 
     return 0;
 }

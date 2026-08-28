@@ -10,21 +10,21 @@ using namespace std;
 
 
 struct T {
-    vector<int>  path;
-    vector<bool> marked;
-    T() = default;
-
+    vector<int> preorder, in, out;
+    static constexpr int t0 = 1;
+    int timer = t0;
     void reset(int v_num) {
-        path.clear();
-        path.reserve(v_num);
-        marked.assign(v_num, false);
+        preorder.clear();
+        preorder.reserve(v_num);
+        in.assign(v_num, 0);
+        out.assign(v_num, 0);
+        timer = t0;
     }
 };
 
 struct T_bfs : T {
     vector<int> dist;
     queue<int>  q;
-
     void reset(int v_num) {
         T::reset(v_num);
         dist.clear();
@@ -35,15 +35,9 @@ struct T_bfs : T {
 
 struct T_topsort : T {
     stack<int>  topsort;
-    vector<int> t_in, t_out;
-    int         timer;
-
     void reset(int v_num) {
         T::reset(v_num);
         topsort = stack<int>();
-        t_in.assign(v_num, 0);
-        t_out.assign(v_num, 0);
-        timer = 1; //!
     }
 };
 
