@@ -1,12 +1,12 @@
 
 #include "graph.hpp"
-#include <stdexcept>
 
 
 void Graph::add_e(const int v1, const int v2) {
     if (v1 >= v_num() || v2 >= v_num())
         throw "add_e: vertex index out of range";
     adj_[v1].push_back(v2);
+    // ++version;
 }
 
 void Graph::demo() {
@@ -27,15 +27,14 @@ void Graph::demo_cyclic() {
 
 bool Graph::topsort_(T_topsort& T, int v) {
     T.in[v] = T.timer++;
-    T.preorder.push_back(v);
     for (int vv : adj[v])
-        if (T.in[vv] == 0) {
+        if (T.in[vv] == T.t0) {
             // Еще не посещали vv
             if (!topsort_(T, vv))
                 return false;
         }
         else {
-            if (T.out[vv] == 0)
+            if (T.out[vv] == T.t0)
                 // Посетили и не обработали vv => есть путь vv -> v
                 return false;
         }
@@ -50,33 +49,35 @@ bool Graph::topsort_(T_topsort& T, int v) {
 bool Graph::topsort(T_topsort& T) {
     T.reset(v_num());
     for (int v = 0; v < v_num(); ++v)
-        if (T.in[v] == 0)
+        if (T.in[v] == T.t0)
             if (!topsort_(T, v))
                 return false;
     return true;
 }
 
-void Graph::bfs(T_bfs& T, const int root) {
-    if (root >= v_num())
+
+void Graph::bfs(T_bfs& T, int v) {
+    if (v >= v_num())
         throw out_of_range("root >= v_num");
-    T.reset(v_num());
-    int v;
-    for (int i = 0; i < v_num(); ++i) {
-        v = (root + i) % v_num();            // 1
-        if (T.dist[v] == T.dist0) {
-            T.dist[v] = 0;
-            T.q.push(v);
-            while(!T.q.empty()) {
-                v = T.q.front(); T.q.pop();  // 2
-                T.preorder.push_back(v);
-                for (int vv : adj[v])
-                    if (T.dist[vv] == T.dist0) {
-                        T.dist[vv] = T.dist[v] + 1;
-                        T.q.push(vv);
-                    }
+    T.reset(v_num(), v);
+    vector<int>& dist = T.dist[v];
+    dist[v] = 0;
+    T.q.push(v);
+    while(!T.q.empty()) {
+        v = T.q.front();
+        T.q.pop();
+        for (int vv : adj[v])
+            if (dist[vv] == T.dist0) {
+                dist[vv] = dist[v] + 1;
+                T.q.push(vv);
             }
-        }
     }
+}
+
+void Graph::bfs(T_bfs& T) {
+    T.reset(v_num());
+    for (int v = 0; v < v_num(); ++v)
+        bfs(T, v);
 }
 
 
@@ -116,7 +117,7 @@ int main()
 
     T_bfs t_bfs;
     g.bfs(t_bfs, 0);
-    cout << "    bfs: " << t_bfs.preorder << "\n\n";
+    // cout << "    bfs: " << t_bfs << "\n\n";
 
     return 0;
 }
