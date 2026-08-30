@@ -68,6 +68,13 @@ class Graph
         bool topsort(T_topsort& T);
     };
 
+std::string grey(string s);
+std::string grey(int digit);
+
 ostream& operator<<(ostream& os, const vector<int>& a);
 ostream& operator<<(ostream& os, stack<int> a);
+
 ostream& operator<<(ostream& os, const Graph& g);
+
+ostream& operator<<(ostream& os, const T_bfs& t);
+ostream& operator<<(ostream& os, const T_topsort& t);
