@@ -1,44 +1,11 @@
 
 #pragma once
 
+#include "../traversal/traversal.hpp"  // T_topsort + T_bfs
+#include <iostream>                    // operator<<
 #include <vector>
-#include <queue>
-#include <stack>
-#include <iostream>
 
 using namespace std;
-
-
-struct T_bfs
-{
-    static constexpr int dist0 = -1;
-    vector<vector<int>> dist;
-    queue<int>  q;
-    void reset(const int v_num) {
-        dist.assign(v_num, vector<int>(v_num, dist0));
-        q = queue<int>();
-    }
-    void reset(const int v_num, const int v) {
-        if (dist.size() != v_num)
-            reset(v_num);
-        dist[v].assign(v_num, dist0);
-        q = queue<int>();
-    }
-};
-
-struct T_topsort
-{
-    static constexpr int t0 = -1;
-    vector<int> in, out;
-    stack<int>  topsort;
-    int timer;
-    void reset(const int v_num) {
-        in.assign(v_num, t0);
-        out.assign(v_num, t0);
-        topsort = stack<int>();
-        timer = 0;
-    }
-};
 
 
 class Graph
@@ -65,16 +32,7 @@ class Graph
 
         void bfs(T_bfs& T, const int root);
         void bfs(T_bfs& T);
-        bool topsort(T_topsort& T);
-    };
-
-std::string grey(string s);
-std::string grey(int digit);
-
-ostream& operator<<(ostream& os, const vector<int>& a);
-ostream& operator<<(ostream& os, stack<int> a);
+        void topsort(T_topsort& T);
+};
 
 ostream& operator<<(ostream& os, const Graph& g);
-
-ostream& operator<<(ostream& os, const T_bfs& t);
-ostream& operator<<(ostream& os, const T_topsort& t);
