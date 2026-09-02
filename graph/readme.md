@@ -4,8 +4,8 @@
 ## Demo
 
 <div>
-    <img src="demo.png" width="25%" style="margin-right: 2%;">
-    <img src="demo_cyclic.png" width="25%">
+    <img src="demo/demo.png" width="25%" style="margin-right: 2%;">
+    <img src="demo/demo_cyclic.png" width="25%">
 </div>
 
 
