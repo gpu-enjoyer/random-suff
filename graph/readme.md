@@ -4,16 +4,16 @@
 ## Demo
 
 <div>
-    <img src="demo/demo.png" width="25%" style="margin-right: 2%;">
-    <img src="demo/demo_cyclic.png" width="25%">
+    <img src="demo/demo.png"        width="30%">
+    <img src="demo/demo_cyclic.png" width="30%">
 </div>
 
 
 ## Roadmap
 
+- [x] topsort: topsort
 - [x] topsort: in + out
-- [x] topsort: наличие циклов
-- [ ] topsort: классификация ребер
+- [ ] topsort: cycles
 - [x] bfs: dist
 - [ ] Взвешенный граф
 - [ ] Алгоритм Прима (мин. остовное дерево)

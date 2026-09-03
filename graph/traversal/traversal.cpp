@@ -1,7 +1,7 @@
 
 #include "traversal.hpp"
 #include <iomanip>        // Functions for operator<<
-#include <string>
+#include <string>         // Functions for operator<<
 
 
 // Traversal for BFS
@@ -32,92 +32,91 @@ void T_topsort::reset(const int v_num) {
 
 // Functions for operator<<
 
-ostream& operator<<(ostream& os, stack<int> a) {
-    while (a.empty() == false) {
-        os << a.top() << ' ';
-        a.pop();
-    }
-    return os;
+string spaces(const int w) {
+    return string(w, ' ');
 }
 
-string grey(const string& s) {
-    return "\033[48;5;240m" + s + "\033[49m";
-}
-
-string grey(int digit) {
-    return grey(to_string(digit));
-}
-
-string cell(int x, int w) {
+template <typename T>
+string align(const T& val, const int w) {
     ostringstream ss;
-    ss << setw(w) << x;
-    return grey(ss.str());
+    if constexpr(is_integral_v<T>)
+        ss << setw(w) << to_string(val);
+    else if (string{val} == "·")
+        ss << string(w - 1, ' ') << val;
+    else
+        ss << setw(w) << val;
+    return ss.str();    
 }
 
-string cell(const string& s, int w) {
+template <typename T>
+string grey(const T& s) {
     ostringstream ss;
-    ss << left << setw(w) << s;
-    return grey(ss.str());
+    ss << "\033[48;5;240m" << s << "\033[49m";
+    return ss.str();
 }
 
-ostream& print_vec(ostream& os, const vector<int>& a, int w) {
-    for (int x : a)
-        os << setw(w) << x << ' ';
-    return os;
+template <typename T>
+string cell(const T& t, const int w) {
+    return grey(align(t, w));
 }
 
 
 // operator<<
 
-// Backlog:
-//  Такая же красота, как у T_topsort
-ostream& operator<<(ostream& os, const T_bfs& t) {
-    os << "  ";
-    for (int i = 0; i < t.dist.size(); ++i)
-        os << grey(i) << ' ';
-    for (int i = 0; i < t.dist.size(); ++i) {
-        os << '\n' << grey(i) << ' ';
-        for (int d : t.dist[i])
-            os << (d == t.dist0 ? "·" : to_string(d)) << ' ';
+constexpr int LW = 7;
+
+ostream& operator<<(ostream& os, stack<int> stck) {
+    while (!stck.empty()) {
+        os << stck.top() << ' ';
+        stck.pop();
     }
+    return os;
+}
+
+ostream& operator<<(ostream& os, const T_bfs& t) {
+    const int w  = max(2,  (int)to_string(t.dist.size()).size());
+    const int lw = max(LW, (int)to_string(t.dist.size()).size());
+
+    os << spaces(lw + 1);
+    for (int v = 0; v < t.dist.size(); ++v)
+        os << cell(v, w) << ' ';
+
+    for (int v = 0; v < t.dist.size(); ++v) {
+        os << '\n' << spaces(lw - w) << cell(v, w) << ' ';
+        for (int d : t.dist[v])
+            if (d == t.dist0) os << align("·", w) << ' ';
+            else              os << align(d, w) << ' ';
+    }
+
     return os << '\n';
 }
 
-
 ostream& operator<<(ostream& os, const T_topsort& t) {
-    const int n = t.in.size();
+    const int w  = max(2, (int)to_string(2 * t.in.size()).size());
 
-    // Ширина колонки = длина самого длинного числа
-    //  Индексы: 0 .. n-1
-    //   Значения in/out: -1 .. 2n
-    int w = 1;
-    auto upd = [&w](int x) { w = max(w, (int)to_string(x).size()); };
-    for (int i = 0; i < n; ++i) upd(i);
-    for (int x : t.in) upd(x);
-    for (int x : t.out) upd(x);
-    w = max(w, 2);
-
-    // Ширина колонки заголовков in, out, topsort
-    const int lw = 8;
-
-    os << string(lw, ' ') << ' ';
-    for (int i = 0; i < n; ++i)
+    os << string(LW + 1, ' ');
+    for (int i = 0; i < t.in.size(); ++i)
         os << cell(i, w) << ' ';
 
-    os << '\n' << cell("in",  lw) << ' ';
-    print_vec(os, t.in,  w);
+    os << '\n' << spaces(LW - 2) << grey("in") << ' ';
+    for (int v = 0; v < t.in.size(); ++v)
+        os << align(t.in[v], w) << ' ';
 
-    os << '\n' << cell("out", lw) << ' ';
-    print_vec(os, t.out, w);
+    os << '\n' << spaces(LW - 3) << grey("out") << ' ';
+    for (int v = 0; v < t.out.size(); ++v)
+        os << align(t.out[v], w) << ' ';
 
-    os << "\n\n" << cell("topsort", lw) << ' ';
+    os << "\n\n";
+
     if (t.cycle) {
-        os << "cycles detected: \n";
-        os << cell("", lw) << " ... \n";
+        os << spaces(LW - 6) << grey("cycles") << ' ';
+
         // TODO: Печатать циклы из вектора t.cycle
+        os << "... \n";
     }
-    else
-        os << t.topsort;
+    else {
+        os << spaces(LW - 7) << grey("topsort") << ' ' << t.topsort;
+    }
 
     return os << '\n';
 }
