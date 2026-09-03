@@ -22,6 +22,8 @@ void Graph::demo() {
 void Graph::demo_cyclic() {
     demo();
     add_e(3, 0);
+    add_e(2, 1);
+    add_e(4, 6);
 }
 
 
@@ -50,34 +52,31 @@ void Graph::bfs(T_bfs& T) {
 }
 
 
-bool Graph::topsort_(T_topsort& T, int v) {
+void Graph::topsort_(T_topsort& T, int v) {
     T.in[v] = T.timer++;
     for (int vv : adj[v])
         if (T.in[vv] == T.t0) {
-            // Еще не посещали vv
-            if (!topsort_(T, vv))
-                return false;
+            T.parent[vv] = v;
+            topsort_(T, vv);
         }
-        else {
-            // Посетили и не обработали vv => есть путь vv -> v
-            if (T.out[vv] == T.t0)
-                return false;
-                // TODO: Сохранять путь цикла, продолжать обход
+        else if (T.out[vv] == T.t0) {
+            vector<int> cycle;
+            for (int u = v; u != vv; u = T.parent[u])
+                cycle.push_back(u);
+            cycle.push_back(vv);
+            for (int i = 0; i < cycle.size() / 2; ++i)
+                swap(cycle[i], cycle[cycle.size() - 1 - i]);
+            T.cycles.push_back(cycle);
         }
-    // Все vv обработаны => выполнять v уже можно.
-    //  v требуется выполнять первее u, положенного в stack ранее.
-    //   [ .. u v .. ] <- topsort
-    T.topsort.push(v);
     T.out[v] = T.timer++;
-    return true;
+    T.topsort.push(v);
 }
 
 void Graph::topsort(T_topsort& T) {
     T.reset(v_num());
     for (int v = 0; v < v_num(); ++v)
         if (T.in[v] == T.t0)
-            if (!topsort_(T, v))
-                T.cycle = true;
+            topsort_(T, v);
 }
 
 

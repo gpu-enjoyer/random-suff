@@ -13,7 +13,7 @@ class Graph
     private:
 
         vector<vector<int>> adj_;
-        bool topsort_(T_topsort& T, int v);
+        void topsort_(T_topsort& T, int v);
 
     public:
 

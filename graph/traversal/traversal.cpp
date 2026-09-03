@@ -22,11 +22,12 @@ void T_bfs::reset(const int v_num, const int v) {
 // Traversal for Topological Sort
 
 void T_topsort::reset(const int v_num) {
+    cycles.clear();
     in.assign(v_num, t0);
     out.assign(v_num, t0);
+    parent.assign(v_num, t0);
     topsort = stack<int>();
     timer = 0;
-    cycle = false;
 }
 
 
@@ -94,7 +95,7 @@ ostream& operator<<(ostream& os, const T_bfs& t) {
 ostream& operator<<(ostream& os, const T_topsort& t) {
     const int w  = max(2, (int)to_string(2 * t.in.size()).size());
 
-    os << string(LW + 1, ' ');
+    os << spaces(LW + 1);
     for (int i = 0; i < t.in.size(); ++i)
         os << cell(i, w) << ' ';
 
@@ -108,14 +109,15 @@ ostream& operator<<(ostream& os, const T_topsort& t) {
 
     os << "\n\n";
 
-    if (t.cycle) {
-        os << spaces(LW - 6) << grey("cycles") << ' ';
-
-        // TODO: Печатать циклы из вектора t.cycle
-        os << "... \n";
-    }
-    else {
+    if (t.cycles.empty())
         os << spaces(LW - 7) << grey("topsort") << ' ' << t.topsort;
+    else {
+        os << spaces(LW - 6) << grey("cycles") << ' ';
+        for (vector<int> cycle : t.cycles) {
+            for (int v : cycle)
+                os << v << ' ';
+            os << '\n' << spaces(LW + 1);
+        }
     }
 
     return os << '\n';

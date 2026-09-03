@@ -10,29 +10,22 @@ using namespace std;
 
 
 // Traversal for BFS
-struct T_bfs
-{
-    vector<vector<int>> dist;
-    queue<int>          q;
-    
-    static constexpr int dist0 = -1;
-
+struct T_bfs {
+    static constexpr int dist0 = -1;  // dist
+    vector<vector<int>>  dist;
+    queue<int>           q;
     void reset(const int v_num);
     void reset(const int v_num, const int v);
 };
 
 
 // Traversal for Topological Sort
-struct T_topsort
-{
-    vector<int> in, out;
-    stack<int>  topsort;
-    int         timer;
-    bool        cycle;  // TODO: vector<vector>
-    
-    // in, out default value
-    static constexpr int t0 = -1;
-
+struct T_topsort {
+    static constexpr int t0 = -1;  // in, out
+    vector<vector<int>>  cycles;
+    vector<int>          in, out, parent;
+    stack<int>           topsort;
+    int                  timer;
     void reset(const int v_num);
 };
 

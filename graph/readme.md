@@ -13,7 +13,7 @@
 
 - [x] topsort: topsort
 - [x] topsort: in + out
-- [ ] topsort: cycles
+- [x] topsort: cycles
 - [x] bfs: dist
 - [ ] Взвешенный граф
 - [ ] Алгоритм Прима (мин. остовное дерево)
