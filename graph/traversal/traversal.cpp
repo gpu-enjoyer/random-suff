@@ -75,6 +75,7 @@ ostream& operator<<(ostream& os, stack<int> stck) {
 }
 
 ostream& operator<<(ostream& os, const T_bfs& t) {
+    os << "BFS\n";
     const int w  = max(2,  (int)to_string(t.dist.size()).size());
     const int lw = max(LW, (int)to_string(t.dist.size()).size());
 
@@ -93,6 +94,8 @@ ostream& operator<<(ostream& os, const T_bfs& t) {
 }
 
 ostream& operator<<(ostream& os, const T_topsort& t) {
+    os << "TopSort\n";
+
     const int w  = max(2, (int)to_string(2 * t.in.size()).size());
 
     os << spaces(LW + 1);

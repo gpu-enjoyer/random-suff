@@ -89,6 +89,7 @@ ostream& operator<<(ostream& os, const vector<int>& a) {
 }
 
 ostream& operator<<(ostream& os, const Graph& g) {
+    os << "Graph\n\n";
     for (int i = 0; i < g.adj.size(); ++i)
         os << i << " -> " << g.adj[i] << '\n';
     return os;
