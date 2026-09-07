@@ -4,6 +4,7 @@ using namespace std;
 
 struct Graph_W
 {
+    // {vertex, cost}
     vector<vector<pair<int, int>>> adj;
 
     void demo();
@@ -15,6 +16,5 @@ struct Graph_W
 
 
 int main() {
-
     return 0;
 }

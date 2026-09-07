@@ -15,7 +15,8 @@
 - [x] topsort: in + out
 - [x] topsort: cycles
 - [x] bfs: dist
-- [ ] Взвешенный граф
-- [ ] Алгоритм Прима (мин. остовное дерево)
-- [ ] Алгоритм Крускала (мин. остовное дерево)
-- [ ] Алгоритм Дейкстры (поиск кратчайшего пути)
+- [ ] weighted graph
+- [ ] dijkstra
+- [ ] prim
+- [ ] kruskal
+- [ ] comments: complexity
