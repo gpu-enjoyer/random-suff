@@ -11,13 +11,13 @@ using p = pair<int, int>;
 struct Graph_W
 {
     static constexpr int inf = INT_MAX;
-    vector<vector<p>> adj; // {vertex_to, cost}
+    vector<vector<p>> adj; // {cost, vertex_to}
     
     Graph_W() = default;
     Graph_W(const int v_num) : adj(vector<vector<p>>(v_num)) {};
 
-    void add_e(const int v1, const int v2, const int c) {
-        adj[v1].push_back({v2, c});
+    void add_e(const int v0, const int v1, const int c) {
+        adj[v0].push_back({c, v1});
     }
 
     void demo() {
@@ -30,10 +30,28 @@ struct Graph_W
         add_e(6, 4, 1);
     }
 
-    vector<int> dijkstra() {
+    vector<int> dijkstra(const int start)
+    {
         vector<int> dist(adj.size(), inf);
-        priority_queue<p, vector<p>, greater<p>> pq;
-        // ...
+        priority_queue<p, vector<p>, greater<p>> pq; // {path, vertex}
+    
+        pq.push({0, start});
+        dist[start] = 0;
+    
+        while (!pq.empty()) {
+            p v = pq.top();
+            pq.pop();
+            if (dist[v.second] != v.first)
+                continue;
+            for (p vv : adj[v.second]) {
+                int path = dist[v.second] + vv.first;
+                if (dist[vv.second] > path) {
+                    dist[vv.second] = path;
+                    pq.push({path, vv.second});
+                }
+            }
+        }
+    
         return dist;
     }
 
@@ -41,12 +59,19 @@ struct Graph_W
     vector<int> kruskal();
 };
 
+
+ostream& operator<<(ostream& os, const vector<int>& a) {
+    for (int i = 0; i < a.size(); ++i)
+        os << a[i] << ' ';
+    return os << '\n';
+}
+
 ostream& operator<<(ostream& os, const Graph_W& gw) {
     os << "Graph_W\n\n";
     for (int i = 0; i < gw.adj.size(); ++i) {
         os << i << " -> ";
         for (int j = 0; j < gw.adj[i].size(); ++j)
-            os << gw.adj[i][j].first << '(' << gw.adj[i][j].second << ") ";
+            os << gw.adj[i][j].second << '(' << gw.adj[i][j].first << ") ";
         os << '\n';
     }
     return os << '\n';
@@ -59,6 +84,9 @@ int main()
     gw.demo();
 
     cout << gw;
+
+    vector<int> dist = gw.dijkstra(0);
+    cout << dist << '\n';
 
     return 0;
 }

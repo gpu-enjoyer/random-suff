@@ -15,8 +15,8 @@
 - [x] topsort: topsort
 - [x] topsort: in + out
 - [x] topsort: cycles
-- [ ] Graph_W
-- [ ] dijkstra
+- [x] Graph_W
+- [x] dijkstra
 - [ ] prim
 - [ ] kruskal
 - [ ] comments: complexity
