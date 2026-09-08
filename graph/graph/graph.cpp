@@ -2,6 +2,8 @@
 #include "graph.hpp"
 
 
+// Directed unweighted graph
+
 void Graph::add_e(const int v1, const int v2) {
     if (v1 >= v_num() || v2 >= v_num())
         throw "add_e: vertex index out of range";
@@ -27,6 +29,8 @@ void Graph::demo_cyclic() {
 }
 
 
+// Breadth-First Search
+
 void Graph::bfs(T_bfs& T, int v) {
     if (v >= v_num())
         throw out_of_range("root >= v_num");
@@ -51,6 +55,8 @@ void Graph::bfs(T_bfs& T) {
         bfs(T, v);
 }
 
+
+// Topological Sort
 
 void Graph::topsort_(T_topsort& T, int v) {
     T.in[v] = T.timer++;

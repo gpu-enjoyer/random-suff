@@ -9,6 +9,8 @@ using namespace std;
 using p = pair<int, int>;
 
 
+// Traversal for Dijkstra's algorithm
+
 struct T_dijkstra {
     static constexpr int inf = INT_MAX;
     vector<int> dist;
@@ -29,6 +31,8 @@ ostream& operator<<(ostream& os, const T_dijkstra& t) {
     return os << "\n\n";
 }
 
+
+// Directed weighted graph
 
 struct Graph_W {
 

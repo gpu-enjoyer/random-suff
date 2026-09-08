@@ -8,6 +8,7 @@
 using namespace std;
 
 
+// Directed unweighted graph
 class Graph
 {
     private:
@@ -30,8 +31,11 @@ class Graph
         void demo();
         void demo_cyclic();
 
+        // Breadth-First Search
         void bfs(T_bfs& T, const int root);
         void bfs(T_bfs& T);
+
+        // Topological Sort
         void topsort(T_topsort& T);
 };
 
