@@ -11,12 +11,15 @@
 
 ## Roadmap
 
+- [x] bfs: dist
 - [x] topsort: topsort
 - [x] topsort: in + out
 - [x] topsort: cycles
-- [x] bfs: dist
-- [ ] weighted graph
+- [ ] Graph_W
 - [ ] dijkstra
 - [ ] prim
 - [ ] kruskal
 - [ ] comments: complexity
+- [ ] \* merge: Graph_W + Graph
+- [ ] \* adj matrix
+- [ ] \* adj list / matrix depending on cases
