@@ -32,7 +32,7 @@ struct Graph_W
 
     vector<int> dijkstra() {
         vector<int> dist(adj.size(), inf);
-        priority_queue<p> pq;
+        priority_queue<p, vector<p>, greater<p>> pq;
         // ...
         return dist;
     }
