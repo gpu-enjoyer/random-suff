@@ -6,7 +6,6 @@
 #include <climits>
 
 using namespace std;
-using p = pair<int, int>;
 
 
 // Traversal for Dijkstra's algorithm
@@ -34,15 +33,21 @@ ostream& operator<<(ostream& os, const T_dijkstra& t) {
 
 // Directed weighted graph
 
-struct Graph_W {
+struct Edge {
+    int to, cost;
+    Edge(int vertex_to, int cost): to(vertex_to), cost(cost) {};
+};
 
-    vector<vector<p>> adj; // {cost, vertex_to}
+struct Graph_W {
+    
+    // vertex_from ->  vertex_to {cost} ...
+    vector<vector<Edge>> adj;
     
     Graph_W() = default;
-    Graph_W(const int v_num) : adj(vector<vector<p>>(v_num)) {};
+    Graph_W(const int v_num) : adj(vector<vector<Edge>>(v_num)) {};
 
-    void add_e(const int v0, const int v1, const int c) {
-        adj[v0].push_back({c, v1});
+    void add_e(const int from, const int to, const int cost) {
+        adj[from].push_back(Edge(to, cost));
     }
 
     void demo() {
@@ -52,24 +57,27 @@ struct Graph_W {
         add_e(0, 2, 7);   //  0 ->   -> 2  (7)
     }
 
-    void dijkstra(const int start, T_dijkstra& t) {
-
-        priority_queue<p, vector<p>, greater<p>> pq; // {path, vertex}
-        t.reset(adj.size(), start);
+    void dijkstra(const int start, T_dijkstra& T) {
     
-        pq.push({0, t.start});
-        t.dist[start] = 0;
+        // {path, vertex}
+        using Pair = pair<int, int>;
+        priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
+
+        T.reset(adj.size(), start);
+    
+        pq.push({0, T.start});
+        T.dist[start] = 0;
     
         while (!pq.empty()) {
-            p v = pq.top();
+            Pair P = pq.top();
             pq.pop();
-            if (t.dist[v.second] != v.first)
+            if (T.dist[P.second] != P.first)
                 continue;
-            for (p vv : adj[v.second]) {
-                int path = t.dist[v.second] + vv.first;
-                if (t.dist[vv.second] > path) {
-                    t.dist[vv.second] = path;
-                    pq.push({path, vv.second});
+            for (Edge E : adj[P.second]) {
+                int path = T.dist[P.second] + E.cost;
+                if (T.dist[E.to] > path) {
+                    T.dist[E.to] = path;
+                    pq.push({path, E.to});
                 }
             }
         }
@@ -83,8 +91,10 @@ ostream& operator<<(ostream& os, const Graph_W& gw) {
     os << "Graph_W\n\n";
     for (int i = 0; i < gw.adj.size(); ++i) {
         os << i << " -> ";
-        for (int j = 0; j < gw.adj[i].size(); ++j)
-            os << gw.adj[i][j].second << '{' << gw.adj[i][j].first << "} ";
+        for (int j = 0; j < gw.adj[i].size(); ++j) {
+            Edge E = gw.adj[i][j];
+            os << E.to << '{' << E.cost << "} ";
+        }
         os << '\n';
     }
     return os << '\n';
