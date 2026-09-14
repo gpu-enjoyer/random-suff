@@ -60,7 +60,7 @@ class Graph_W {
 private:
 
     vec<vec<Edge>> adj_list_; // adj_list[from] -> { (from, to, cost) }
-    vec<vec<bool>> has_edge_; // has_edge[from][to]
+    vec<vec<bool>> has_edge_; // has_edge[from][to] // todo: unordered_set
 
 public:
 
