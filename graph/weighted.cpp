@@ -205,8 +205,8 @@ ostream& operator<<(ostream& os, const Graph_W& g) {
     for (int i = 0; i < g.adj_list.size(); ++i) {
         os << " " << i << " -> ";
         for (int j = 0; j < g.adj_list[i].size(); ++j) {
-            Edge E = g.adj_list[i][j];
-            os << E.to << '{' << E.cost << "} ";
+            const Edge& e = g.adj_list[i][j];
+            os << e.to << '{' << e.cost << "} ";
         }
         os << '\n';
     }
