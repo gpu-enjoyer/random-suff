@@ -55,18 +55,36 @@ struct Edge {
 
 // Directed weighted graph
 
-struct Graph_W {
+class Graph_W {
+
+private:
+
+    vec<vec<Edge>> adj_list_; // adj_list[from] -> { (from, to, cost) }
+    vec<vec<bool>> has_edge_; // has_edge[from][to]
+
+public:
+
+    const vec<vec<Edge>>& adj_list = adj_list_;
+    const vec<vec<bool>>& has_edge = has_edge_;
 
     string name = "__empty";
 
-    vec<vec<Edge>> adj_list; // adj_list[from] -> { (from, to, cost) }
-    vec<vec<bool>> has_edge; // has_edge[from][to]
-
     Graph_W() = default;
+    Graph_W(Graph_W&& g) {
+        adj_list_ = std::move(g.adj_list_);
+        has_edge_ = std::move(g.has_edge_);
+        name      = std::move(g.name);
+    }
+    Graph_W& operator=(Graph_W&& g) {
+        adj_list_ = std::move(g.adj_list_);
+        has_edge_ = std::move(g.has_edge_);
+        name      = std::move(g.name);
+        return *this;
+    }
     Graph_W(const int v_num, const string name = "__no_name") {
         this->name = name;
-        adj_list = vec<vec<Edge>>(v_num);
-        has_edge = vec<vec<bool>>(v_num, vec<bool>(v_num, false));
+        adj_list_ = vec<vec<Edge>>(v_num);
+        has_edge_ = vec<vec<bool>>(v_num, vec<bool>(v_num, false));
     }
 
     // Add directed edge
@@ -76,8 +94,8 @@ struct Graph_W {
                 << from << to << cost << ") was not added";
             return;
         }
-        has_edge[from][to] = true;
-        adj_list[from].push_back(Edge(from, to, cost));
+        has_edge_[from][to] = true;
+        adj_list_[from].push_back(Edge(from, to, cost));
     }
 
     void demo() {
@@ -95,11 +113,11 @@ struct Graph_W {
                 << from << to << cost << ") was not added";
             return;
         }
-        has_edge[from][to] = true;
-        adj_list[from].push_back(Edge(from, to, cost));
+        has_edge_[from][to] = true;
+        adj_list_[from].push_back(Edge(from, to, cost));
         if (from != to) {
-            has_edge[to][from] = true;
-            adj_list[to].push_back(Edge(to, from, cost));
+            has_edge_[to][from] = true;
+            adj_list_[to].push_back(Edge(to, from, cost));
         }
     }
 
