@@ -49,6 +49,8 @@ ostream& operator<<(ostream& os, const T_dijkstra& t) {
 
 struct Edge {
     int from, to, cost;
+    Edge()
+        : from(-1), to(-1), cost(-1) {}
     Edge(int v_from, int v_to, int cost)
         : from(v_from), to(v_to), cost(cost) {}
 };
@@ -94,7 +96,7 @@ public:
         if (has_edge[from][to]) {
             cout << "Graph_W \"" << name << "\": add_e("
                 << from << ", " << to << ", " << cost
-                << ") did not add an edge \n";
+                << ") not complete \n";
             return;
         }
         has_edge_[from][to] = true;
@@ -114,7 +116,7 @@ public:
         if (has_edge[from][to] || has_edge[to][from]) {
             cout << "Graph_W \"" << name << "\": add_ue("
                 << from << ", " << to << ", " << cost
-                << ") did not add an edge \n";
+                << ") not complete \n";
             return;
         }
         has_edge_[from][to] = true;
@@ -162,6 +164,7 @@ public:
         return true;
     }
 
+
     void dijkstra(T_dijkstra& t, const int start) {
     
         // {path, vertex}
@@ -194,8 +197,28 @@ public:
             dijkstra(t, i);
     }
 
-    vec<int> prim();
-    vec<int> kruskal();
+
+    // Growing a tree
+    //  priority_queue
+    //   Traverses only one connected component
+    Graph_W prim(const int start) {
+        Graph_W tree(adj_list.size() - 1, "tree");
+        if (!is_undirected())
+            throw("Graph_W \"" + name + "\"" + "is directed. prim() not complete");
+        // ...
+        return tree;
+    }
+
+    // Growing a forest
+    //  struct DSU (Disjoint-Set Unit): find + union
+    //   Capable of traversing a disconnected graph
+    Graph_W kruskal(const int start) {
+        Graph_W tree(adj_list.size() - 1, "tree");
+        if (!is_undirected())
+            throw("Graph_W \"" + name + "\"" + "is directed. kruskal() not complete");
+        // ...
+        return tree;
+    }
 };
 
 ostream& operator<<(ostream& os, const Graph_W& g) {
@@ -216,7 +239,7 @@ ostream& operator<<(ostream& os, const Graph_W& g) {
 
 int main() {
 
-    // Directed graph for Dijkstra()
+    // Directed graph for dijkstra()
     Graph_W g;
     g.demo();
     cout << g;
@@ -225,7 +248,7 @@ int main() {
     g.dijkstra(t);
     cout << t;
 
-    // Undirected graph for Prim() and Kruskal()
+    // Undirected graph for dijkstra(), prim(), kruskal()
     Graph_W gg;
     gg.demo_undirected();
     cout << gg;
