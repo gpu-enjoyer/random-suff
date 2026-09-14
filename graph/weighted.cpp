@@ -81,11 +81,11 @@ public:
         name      = std::move(g.name);
         return *this;
     }
-    Graph_W(const int v_num, const string name = "__no_name") {
-        this->name = name;
-        adj_list_ = vec<vec<Edge>>(v_num);
-        has_edge_ = vec<vec<bool>>(v_num, vec<bool>(v_num, false));
-    }
+    explicit Graph_W(const int v_num, string name = "__no_name")
+        : adj_list_(v_num),
+          has_edge_(v_num, vec<bool>(v_num, false)),
+          name(std::move(name)) {}
+
 
     // Add directed edge
     void add_e(const int from, const int to, const int cost) {
