@@ -133,7 +133,7 @@ public:
 
 
     bool is_undirected() const {
-        vec<bool> checked(adj_list.size(), false);
+        vec<bool> checked(has_edge.size(), false);
         for (int i = 0; i < has_edge.size(); ++i) {
             for (int j = 0; j < has_edge.size(); ++j) {
                 if (checked[j])
