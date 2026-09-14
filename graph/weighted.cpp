@@ -65,6 +65,7 @@ private:
 
 public:
 
+    // Warning: copying will cause problems
     const vec<vec<Edge>>& adj_list = adj_list_;
     const vec<vec<bool>>& has_edge = has_edge_;
 
@@ -171,7 +172,7 @@ public:
         vec<int>& d = t.dist[start];
     
         pq.push({0, start});
-        d[start] = 0; // no match for ‘operator=’
+        d[start] = 0;
     
         while (!pq.empty()) {
             Pair P = pq.top();
