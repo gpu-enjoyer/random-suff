@@ -90,8 +90,9 @@ public:
     // Add directed edge
     void add_e(const int from, const int to, const int cost) {
         if (has_edge[from][to]) {
-            cout << "  directed edge("
-                << from << to << cost << ") was not added";
+            cout << "Graph_W \"" << name << "\": add_e("
+                << from << ", " << to << ", " << cost
+                << ") did not add an edge \n";
             return;
         }
         has_edge_[from][to] = true;
@@ -109,8 +110,9 @@ public:
     // Add undirected edge
     void add_ue(const int from, const int to, const int cost) {
         if (has_edge[from][to] || has_edge[to][from]) {
-            cout << "undirected edge("
-                << from << to << cost << ") was not added";
+            cout << "Graph_W \"" << name << "\": add_ue("
+                << from << ", " << to << ", " << cost
+                << ") did not add an edge \n";
             return;
         }
         has_edge_[from][to] = true;
