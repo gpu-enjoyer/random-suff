@@ -21,5 +21,6 @@
 - [ ] kruskal
 - [ ] comments: complexity
 - [ ] \* merge: Graph_W + Graph
-- [ ] \* adj matrix
-- [ ] \* adj list / matrix depending on cases
+- [ ] \* adj_matrix
+- [ ] \* adj_list / adj_matrix depending on cases
+- [ ] \* consider: using dictionaries in some cases

@@ -7,12 +7,17 @@
 
 using namespace std;
 
+template<typename T>
+using vec = vector<T>;
+using Pair = pair<int, int>; // dijkstra
+
+
 
 // Traversal for Dijkstra's algorithm
 
 struct T_dijkstra {
     static constexpr int inf = INT_MAX;
-    vector<int> dist;
+    vec<int> dist;
     int start;
     void reset(const int v_num, const int start){
         this->start = start;
@@ -34,7 +39,7 @@ ostream& operator<<(ostream& os, const T_dijkstra& t) {
 struct Edge {
     int from, to, cost;
     Edge(int v_from, int v_to, int cost)
-        : from(v_from), to(v_to), cost(cost) {};
+        : from(v_from), to(v_to), cost(cost) {}
 };
 
 
@@ -42,19 +47,26 @@ struct Edge {
 
 struct Graph_W {
 
-    // adj_list[v_from]  ==  { (v_from, v_to, cost) }
-    vector<vector<Edge>> adj_list;
-    
-    Graph_W() = default;
-    Graph_W(const int v_num) : adj_list(vector<vector<Edge>>(v_num)) {};
+    vec<vec<Edge>> adj_list; // adj_list[from] -> { (from, to, cost) }
+    vec<vec<bool>> has_edge; // has_edge[from][to]
 
-    // Add directed edge
-    void add_e(const int v_from, const int v_to, const int cost) {
-        adj_list[v_from].push_back(Edge(v_from, v_to, cost));
+    Graph_W() = default;
+    Graph_W(const int v_num) {
+        adj_list = vec<vec<Edge>>(v_num);
+        has_edge = vec<vec<bool>>(v_num, vec<bool>(v_num, false));
     }
 
-    //* Поддерживать инварианту:
-    //*  только одна вершина с некоторыми (from, to)
+    // Add directed edge
+    void add_e(const int from, const int to, const int cost) {
+        if (has_edge[from][to]) {
+            cout << "  directed edge("
+                << from << to << cost << ") was not added";
+            return;
+        }
+        has_edge[from][to] = true;
+        adj_list[from].push_back(Edge(from, to, cost));
+    }
+
     void demo() {
         *this = Graph_W(3);
         add_e(0, 1, 1);   //  0 -> 1       {1}
@@ -63,9 +75,16 @@ struct Graph_W {
     }
 
     // Add undirected edge
-    void add_ue(const int v0, const int v1, const int cost) {
-        add_e(v0, v1, cost);
-        add_e(v1, v0, cost);
+    void add_ue(const int from, const int to, const int cost) {
+        if (has_edge[from][to] || has_edge[to][from]) {
+            cout << "undirected edge("
+                << from << to << cost << ") was not added";
+            return;
+        }
+        has_edge[from][to] = true;
+        adj_list[from].push_back(Edge(from, to, cost));
+        has_edge[to][from] = true;
+        adj_list[to].push_back(Edge(to, from, cost));
     }
 
     void demo_undirected() {
@@ -76,28 +95,38 @@ struct Graph_W {
     }
 
 
-    // int v_num();
-
-    //!
-    bool is_undirected() {
-        // vector<bool> has_checked(v_num(), false);
-        for (const vector<Edge>& edges : adj_list) //!
-            for (const Edge& e : edges)
-                for (const Edge& ee: adj_list[e.to])
-                    if (ee.to == e.from) {
-                        if (ee.cost == e.cost)
-                            continue; //!
-                        else
-                            return false;
+    bool is_undirected() const {
+        vec<bool> checked(adj_list.size(), false);
+        for (int i = 0; i < has_edge.size(); ++i) {
+            for (int j = 0; j < has_edge.size(); ++j) {
+                if (checked[j])
+                    continue;
+                if (has_edge[i][j] != has_edge[j][i])
+                    return false;
+                int cost_i_j = 0;
+                int cost_j_i = 0;
+                for (const Edge& e : adj_list[i])
+                    if (e.to == j) {
+                        cost_i_j = e.cost;
+                        break;
                     }
+                for (const Edge& e : adj_list[j])
+                    if (e.to == i) {
+                        cost_j_i = e.cost;
+                        break;
+                    }
+                if (cost_i_j != cost_j_i)
+                    return false;
+            }
+            checked[i] = true;
+        }
         return true;
     }
 
     void dijkstra(const int start, T_dijkstra& T) {
     
         // {path, vertex}
-        using Pair = pair<int, int>;
-        priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
+        priority_queue<Pair, vec<Pair>, greater<Pair>> pq;
 
         T.reset(adj_list.size(), start);
     
@@ -119,12 +148,13 @@ struct Graph_W {
         }
     }
 
-    vector<int> prim();
-    vector<int> kruskal();
+    vec<int> prim();
+    vec<int> kruskal();
 };
 
 ostream& operator<<(ostream& os, const Graph_W& g) {
-    os << "Graph_W\n\n";
+    os << (g.is_undirected() ? "Undirected" : "Directed")
+        << " Graph_W\n\n";
     for (int i = 0; i < g.adj_list.size(); ++i) {
         os << i << " -> ";
         for (int j = 0; j < g.adj_list[i].size(); ++j) {
@@ -152,9 +182,6 @@ int main() {
     Graph_W gg;
     gg.demo_undirected();
     cout << gg;
-
-    // !
-    cout << "gg is " << (gg.is_undirected() ? "UNdirected" : "directed") << "\n\n";
 
     return 0;
 }
