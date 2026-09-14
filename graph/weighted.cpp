@@ -26,6 +26,7 @@ struct T_dijkstra {
         if (dist.size() != v_num)
             reset(v_num);
         done[start] = true;
+        dist[start].assign(v_num, inf);
     }
 };
 
