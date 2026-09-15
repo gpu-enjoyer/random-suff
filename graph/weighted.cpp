@@ -216,40 +216,33 @@ public:
     Graph_W prim(const int start)
     {
         if (!is_undirected())
-            throw("Graph_W \"" + name + "\"" + "is directed. prim() not complete");
+            throw("Graph_W \"" + name + "\"" + "is directed. prim() did not execute");
     
         priority_queue<Edge, vec<Edge>, Edge_greater> pq;
         Graph_W tree(adj_list.size(), name + " -> prim(" + to_string(start) +")");
         vec<bool> in_tree(adj_list.size(), false);
-        int v_num = 0;
-
-        //* Инициализация
+        int e_num = 0;
 
         for (const Edge& e : adj_list[start])
             pq.push(e);
 
-        //* Суть алгоритма
-        while(!pq.empty())
-        {
-            // Завершится, когда будут собраны все вершины либо закончится куча
-            if (v_num >= tree.adj_list.size())
+        while(!pq.empty()) {
+            if (e_num >= in_tree.size() - 1)
                 break;
-
             Edge e = pq.top();
             pq.pop();
-
             if (in_tree[e.from] && in_tree[e.to])
                 continue;
-            else
-            {
-                v_num += 1;
-
-                tree.add_ue(e);
+            else {
+                e_num += 1;
+                tree.add_ue(e); //!
                 in_tree[e.from] = true;
                 in_tree[e.to] = true;
-
                 for (Edge ee : adj_list[e.from])
                     if (!in_tree[ee.to])
+                        pq.push(ee);
+                for (Edge ee : adj_list[e.to])
+                    if (!in_tree[ee.from])
                         pq.push(ee);
             }
         }
