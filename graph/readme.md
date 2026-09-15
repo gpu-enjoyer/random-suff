@@ -11,16 +11,18 @@
 
 ## Roadmap
 
+- [x] Graph
+- [x] bfs: bfs
 - [x] bfs: dist
-- [x] topsort: topsort
+- [x] topsort: dfs
 - [x] topsort: in + out
 - [x] topsort: cycles
+- [x] topsort: topsort
 - [x] Graph_W
 - [x] dijkstra
-- [ ] prim
+- [x] prim
 - [ ] kruskal
 - [ ] comments: complexity
 - [ ] \* merge: Graph_W + Graph
-- [ ] \* adj_matrix
 - [ ] \* adj_list / adj_matrix depending on cases
 - [ ] \* consider: using dictionaries in some cases

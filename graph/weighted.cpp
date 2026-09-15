@@ -209,40 +209,51 @@ public:
     }
 
 
-    //* Sketch
-
     // Growing a tree.
     //  Traverses only one connected component.
-    Graph_W prim(const int start)
-    {
+    Graph_W prim(const int start) {
+
         if (!is_undirected())
             throw("Graph_W \"" + name + "\"" + "is directed. prim() did not execute");
-    
+
         priority_queue<Edge, vec<Edge>, Edge_greater> pq;
         Graph_W tree(adj_list.size(), name + " -> prim(" + to_string(start) +")");
         vec<bool> in_tree(adj_list.size(), false);
         int e_num = 0;
 
+        in_tree[start] = true;
         for (const Edge& e : adj_list[start])
             pq.push(e);
 
         while(!pq.empty()) {
             if (e_num >= in_tree.size() - 1)
                 break;
-            Edge e = pq.top();
-            pq.pop();
-            if (in_tree[e.from] && in_tree[e.to])
+            Edge e = pq.top(); pq.pop();
+    
+            // В одной из предыдущих итераций "while()"
+            //  извлеченное ребро называелось "e".
+            // 
+            // Тогда же вершина (1) "e.to" была добавлена в
+            //  дерево: "in_tree[e.to] = true".
+            //   Затем все ребра (1)->(2), соединяющие с
+            //    потенциальными новыми вершинами, отправились
+            //     в очередь: "pq.push(ee)".
+            // 
+            // Сейчас очередное ребро "e", извлеченное из очереди,
+            //  соединяет вершины (1) "e.from" -> (2) "e.to".
+            // 
+            // Значит, теперь "in_tree[e.from] == true".
+            //  Как и в любой другой итерации: по индукции,
+            //   начиная со "start".
+    
+            if (in_tree[e.to])
                 continue;
             else {
                 e_num += 1;
-                tree.add_ue(e); //!
-                in_tree[e.from] = true;
+                tree.add_ue(e);
                 in_tree[e.to] = true;
-                for (Edge ee : adj_list[e.from])
-                    if (!in_tree[ee.to])
-                        pq.push(ee);
                 for (Edge ee : adj_list[e.to])
-                    if (!in_tree[ee.from])
+                    if (!in_tree[ee.to])
                         pq.push(ee);
             }
         }
@@ -254,13 +265,14 @@ public:
     // Growing a forest.
     //  struct DSU (Disjoint-Set Unit): find + union.
     //   Capable of traversing a disconnected graph.
-    Graph_W kruskal(const int start) {
+    Graph_W kruskal() {
         Graph_W tree(adj_list.size(), "tree");
         if (!is_undirected())
-            throw("Graph_W \"" + name + "\"" + "is directed. kruskal() not complete");
+            throw("Graph_W \"" + name + "\"" + "is directed. kruskal() did not execute");
         // ...
         return tree;
     }
+
 };
 
 ostream& operator<<(ostream& os, const Graph_W& g) {
