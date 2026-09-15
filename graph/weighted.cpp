@@ -1,7 +1,7 @@
 
 #include <string>
 #include <vector>
-#include <queue>
+#include <queue>          // dijkstra
 #include <iostream>
 #include <climits>
 
@@ -89,6 +89,8 @@ public:
         : adj_list_(v_num),
           has_edge_(v_num, vec<bool>(v_num, false)),
           name(std::move(name)) {}
+    explicit Graph_W(string name)
+        : name(name) {}
 
 
     // Add directed edge
@@ -101,6 +103,9 @@ public:
         }
         has_edge_[from][to] = true;
         adj_list_[from].push_back(Edge(from, to, cost));
+    }
+    void add_e(const Edge& e) {
+        add_e(e.from, e.to, e.cost);
     }
 
     void demo() {
@@ -125,6 +130,9 @@ public:
             has_edge_[to][from] = true;
             adj_list_[to].push_back(Edge(to, from, cost));
         }
+    }
+    void add_ue(const Edge& e) {
+        add_ue(e.from, e.to, e.cost);
     }
 
     void demo_undirected() {
@@ -198,14 +206,58 @@ public:
     }
 
 
+    //* Sketch
+
     // Growing a tree
     //  priority_queue
     //   Traverses only one connected component
-    Graph_W prim(const int start) {
-        Graph_W tree(adj_list.size() - 1, "tree");
+    Graph_W prim(const int start)
+    {
         if (!is_undirected())
             throw("Graph_W \"" + name + "\"" + "is directed. prim() not complete");
-        // ...
+    
+        Graph_W tree(adj_list.size(), "tree");
+        vec<bool> in_tree(adj_list.size(), false);
+        int v_num = 0;
+
+        //* todo: compare(Edge, Edge);
+        //*  Вопрос по синтаксису: как это пишут?
+        //*   Не сталкивался
+        priority_queue<Edge, vec<Edge> /* , ... */> pq;
+
+        //* Инициализация
+        Edge e_min(-1, -1, INT_MAX);
+        for (const Edge& e : adj_list[start])
+            if (e.cost < e_min.cost)
+                e_min = e;
+        pq.push(e_min);
+
+        //* Суть алгоритма
+        while(!pq.empty())
+        {
+            // Завершится, когда будут собраны все вершины либо закончится куча
+            if (v_num >= tree.adj_list.size())
+                break;
+
+            Edge e = pq.top();
+            pq.pop();
+
+            if (in_tree[e.from] && in_tree[e.to])
+                continue;
+            else
+            {
+                v_num += 1;
+
+                tree.add_ue(e);
+                in_tree[e.from] = true;
+                in_tree[e.to] = true;
+
+                for (Edge ee : adj_list[e.from])
+                    if (!in_tree[ee.to])
+                        pq.push(ee);
+            }
+        }
+
         return tree;
     }
 
@@ -213,7 +265,7 @@ public:
     //  struct DSU (Disjoint-Set Unit): find + union
     //   Capable of traversing a disconnected graph
     Graph_W kruskal(const int start) {
-        Graph_W tree(adj_list.size() - 1, "tree");
+        Graph_W tree(adj_list.size(), "tree");
         if (!is_undirected())
             throw("Graph_W \"" + name + "\"" + "is directed. kruskal() not complete");
         // ...
@@ -256,6 +308,10 @@ int main() {
     T_dijkstra tt;
     gg.dijkstra(tt);
     cout << tt;
+
+    Graph_W gg_prim("prim");
+    gg_prim = gg.prim(0);
+    cout << gg_prim;
 
     return 0;
 }
