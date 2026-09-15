@@ -1,7 +1,7 @@
 
 #include <string>
 #include <vector>
-#include <queue>          // dijkstra
+#include <queue>  // dijkstra, prim
 #include <iostream>
 #include <climits>
 
@@ -55,6 +55,11 @@ struct Edge {
         : from(v_from), to(v_to), cost(cost) {}
 };
 
+struct Edge_greater {
+    bool operator() (const Edge& e, const Edge& ee) const {
+        return e.cost > ee.cost;
+    }
+};
 
 // Directed weighted graph
 
@@ -89,8 +94,6 @@ public:
         : adj_list_(v_num),
           has_edge_(v_num, vec<bool>(v_num, false)),
           name(std::move(name)) {}
-    explicit Graph_W(string name)
-        : name(name) {}
 
 
     // Add directed edge
@@ -108,9 +111,9 @@ public:
         add_e(e.from, e.to, e.cost);
     }
 
-    void demo() {
-        *this = Graph_W(3);
-        name = "0 -> 1 -> 2 <- 0";
+    void demo(string name = "") {
+        name += " [0>1>2<0]";
+        *this = Graph_W(3, name);
         add_e(0, 1, 1);
         add_e(1, 2, 1);
         add_e(0, 2, 3);
@@ -135,9 +138,9 @@ public:
         add_ue(e.from, e.to, e.cost);
     }
 
-    void demo_undirected() {
-        *this = Graph_W(3);
-        name = "0 - 1 - 2 - 0";
+    void demo_undirected(string name = "") {
+        name += " [0-1-2-0]";
+        *this = Graph_W(3, name);
         add_ue(0, 1, 1);
         add_ue(1, 2, 2);
         add_ue(2, 0, 3);
@@ -208,29 +211,22 @@ public:
 
     //* Sketch
 
-    // Growing a tree
-    //  priority_queue
-    //   Traverses only one connected component
+    // Growing a tree.
+    //  Traverses only one connected component.
     Graph_W prim(const int start)
     {
         if (!is_undirected())
             throw("Graph_W \"" + name + "\"" + "is directed. prim() not complete");
     
-        Graph_W tree(adj_list.size(), "tree");
+        priority_queue<Edge, vec<Edge>, Edge_greater> pq;
+        Graph_W tree(adj_list.size(), name + " -> prim(" + to_string(start) +")");
         vec<bool> in_tree(adj_list.size(), false);
         int v_num = 0;
 
-        //* todo: compare(Edge, Edge);
-        //*  Вопрос по синтаксису: как это пишут?
-        //*   Не сталкивался
-        priority_queue<Edge, vec<Edge> /* , ... */> pq;
-
         //* Инициализация
-        Edge e_min(-1, -1, INT_MAX);
+
         for (const Edge& e : adj_list[start])
-            if (e.cost < e_min.cost)
-                e_min = e;
-        pq.push(e_min);
+            pq.push(e);
 
         //* Суть алгоритма
         while(!pq.empty())
@@ -261,9 +257,10 @@ public:
         return tree;
     }
 
-    // Growing a forest
-    //  struct DSU (Disjoint-Set Unit): find + union
-    //   Capable of traversing a disconnected graph
+
+    // Growing a forest.
+    //  struct DSU (Disjoint-Set Unit): find + union.
+    //   Capable of traversing a disconnected graph.
     Graph_W kruskal(const int start) {
         Graph_W tree(adj_list.size(), "tree");
         if (!is_undirected())
@@ -275,8 +272,7 @@ public:
 
 ostream& operator<<(ostream& os, const Graph_W& g) {
     os << (g.is_undirected() ? "Undirected" : "Directed")
-        << " Graph_W \n"
-        << " name: \"" << g.name << "\" \n\n";
+        << " Graph_W \'" << g.name << "\'\n\n";
     for (int i = 0; i < g.adj_list.size(); ++i) {
         os << " " << i << " -> ";
         for (int j = 0; j < g.adj_list[i].size(); ++j) {
@@ -293,7 +289,7 @@ int main() {
 
     // Directed graph for dijkstra()
     Graph_W g;
-    g.demo();
+    g.demo("g");
     cout << g;
 
     T_dijkstra t;
@@ -302,15 +298,14 @@ int main() {
 
     // Undirected graph for dijkstra(), prim(), kruskal()
     Graph_W gg;
-    gg.demo_undirected();
+    gg.demo_undirected("gg");
     cout << gg;
 
     T_dijkstra tt;
     gg.dijkstra(tt);
     cout << tt;
 
-    Graph_W gg_prim("prim");
-    gg_prim = gg.prim(0);
+    Graph_W gg_prim = gg.prim(0);
     cout << gg_prim;
 
     return 0;
