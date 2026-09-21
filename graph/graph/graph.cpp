@@ -1,5 +1,6 @@
 
 #include "graph.hpp"
+#include <algorithm> // reverse(cycle)
 
 
 // Directed unweighted graph
@@ -70,8 +71,7 @@ void Graph::topsort_(T_topsort& T, int v) {
             for (int u = v; u != vv; u = T.parent[u])
                 cycle.push_back(u);
             cycle.push_back(vv);
-            for (int i = 0; i < cycle.size() / 2; ++i)
-                swap(cycle[i], cycle[cycle.size() - 1 - i]);
+            reverse(cycle.begin(), cycle.end());
             T.cycles.push_back(cycle);
         }
     T.out[v] = T.timer++;
