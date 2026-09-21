@@ -21,7 +21,7 @@
 - [x] Graph_W
 - [x] dijkstra
 - [x] prim
-- [ ] kruskal
+- [x] kruskal
 - [ ] comments: complexity
 - [ ] \* merge: Graph_W + Graph
 - [ ] \* adj_list / adj_matrix depending on cases

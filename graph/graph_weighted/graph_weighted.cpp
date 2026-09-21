@@ -54,8 +54,13 @@ int T_kruskal::find(const int v) {
     // Path compression: p[v] = f(pp[v]) = ff(ppp[v]) = ... = v
     return parent[v] == v ? v : parent[v] = find(parent[v]);
 }
+
 bool T_kruskal::attach(const Edge& e) {
-    return find(e.from) == find(e.to);
+    if (find(e.from) != find(e.to)) {
+        parent[find(e.from)] = find(e.to);
+        return true;
+    }
+    return false;
 }
 
 
@@ -259,11 +264,12 @@ Graph_W Graph_W::kruskal() {
 
     Graph_W   tree(adj_list.size(), name + " -> kruskal()");
     T_kruskal t(adj_list.size());
+
+    t.reset(adj_list);
     
-    while (t.edges.size() > 0) {
-        Edge e = t.edges.back();
-        t.edges.pop_back();
-        // todo ...
+    for (int i = 0; i < t.edges.size(); ++i) {
+        if(t.attach(t.edges[i]))
+            tree.add_ue(t.edges[i]);
     }
 
     return tree;
@@ -287,26 +293,33 @@ ostream& operator<<(ostream& os, const Graph_W& g) {
 
 int main() {
 
-    // Directed graph for dijkstra()
+    // === Directed graph ===
     Graph_W g;
     g.demo("g");
     cout << g;
 
+    // dijkstra()
     T_dijkstra t;
     g.dijkstra(t);
     cout << t;
 
-    // Undirected graph for dijkstra(), prim(), kruskal()
+    // === Undirected graph ===
     Graph_W gg;
     gg.demo_undirected("gg");
     cout << gg;
 
+    // dijkstra()
     T_dijkstra tt;
     gg.dijkstra(tt);
     cout << tt;
 
+    // prim()
     Graph_W gg_prim = gg.prim(0);
     cout << gg_prim;
+
+    // kriskal()
+    Graph_W gg_kruskal = gg.kruskal();
+    cout << gg_kruskal;
 
     return 0;
 }
