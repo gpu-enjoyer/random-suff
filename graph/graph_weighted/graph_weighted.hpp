@@ -3,10 +3,8 @@
 
 #include <string>
 #include <vector>
-
 #include <iostream>
 #include <climits>
-
 
 using namespace std;
 
@@ -14,19 +12,7 @@ template<typename T> using vec = vector<T>;
 using Pair = pair<int, int>; // dijkstra
 
 
-// Traversal for Dijkstra's algorithm
-struct T_dijkstra {
-    static constexpr int inf = INT_MAX;
-    vec<vec<int>> dist;
-    vec<bool> done;
-    void reset(const int v_num);
-    void reset(const int v_num, const int start);
-};
-
-
-
-ostream& operator<<(ostream& os, const T_dijkstra& t);
-
+// Edges
 
 struct Edge {
     int from, to, cost;
@@ -43,7 +29,21 @@ struct Edge_greater {
 bool edge_shorter(const Edge& e, const Edge& ee);
 
 
+// Traversal for Dijkstra's algorithm
+
+struct T_dijkstra {
+    static constexpr int inf = INT_MAX;
+    vec<vec<int>> dist;
+    vec<bool> done;
+    void reset(const int v_num);
+    void reset(const int v_num, const int start);
+};
+
+ostream& operator<<(ostream& os, const T_dijkstra& t);
+
+
 // Traversal for Kruskal's algorithm
+
 struct T_kruskal {
     static constexpr int v0 = -1;
     vec<Edge> edges;
