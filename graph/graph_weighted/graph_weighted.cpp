@@ -289,37 +289,3 @@ ostream& operator<<(ostream& os, const Graph_W& g) {
     }
     return os << '\n';
 }
-
-
-int main() {
-
-    // === Directed graph ===
-    Graph_W g;
-    g.demo("g");
-    cout << g;
-
-    // dijkstra()
-    T_dijkstra t;
-    g.dijkstra(t);
-    cout << t;
-
-    // === Undirected graph ===
-    Graph_W gg;
-    gg.demo_undirected("gg");
-    cout << gg;
-
-    // dijkstra()
-    T_dijkstra tt;
-    gg.dijkstra(tt);
-    cout << tt;
-
-    // prim()
-    Graph_W gg_prim = gg.prim(0);
-    cout << gg_prim;
-
-    // kriskal()
-    Graph_W gg_kruskal = gg.kruskal();
-    cout << gg_kruskal;
-
-    return 0;
-}
