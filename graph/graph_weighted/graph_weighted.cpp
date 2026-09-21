@@ -1,35 +1,21 @@
 
-#include <string>
-#include <vector>
+#include "graph_weighted.hpp"
+
 #include <queue>  // dijkstra, prim
-#include <iostream>
-#include <climits>
-
-using namespace std;
-
-template<typename T> using vec = vector<T>;
-using Pair = pair<int, int>; // dijkstra
-
+#include <algorithm> // kruskal: sort()
 
 
 // Traversal for Dijkstra's algorithm
-
-struct T_dijkstra {
-    static constexpr int inf = INT_MAX;
-    vec<vec<int>> dist;
-    vec<bool>     done;
-    void reset(const int v_num) {
+void T_dijkstra::reset(const int v_num) {
         dist.assign(v_num, vec<int>(v_num, inf));
         done.assign(v_num, false);
-    }
-    void reset(const int v_num, const int start) {
+}
+void T_dijkstra::reset(const int v_num, const int start) {
         if (dist.size() != v_num)
             reset(v_num);
         done[start] = true;
         dist[start].assign(v_num, inf);
-    }
-};
-
+}
 ostream& operator<<(ostream& os, const T_dijkstra& t) {
     os << "dijkstra\n   ";
 
@@ -47,233 +33,242 @@ ostream& operator<<(ostream& os, const T_dijkstra& t) {
 }
 
 
-struct Edge {
-    int from, to, cost;
-    Edge()
-        : from(-1), to(-1), cost(-1) {}
-    Edge(int v_from, int v_to, int cost)
-        : from(v_from), to(v_to), cost(cost) {}
-};
+// Traversal for Kruskal's algorithm
+bool edge_shorter(const Edge& e, const Edge& ee) {
+    return e.cost < ee.cost;
+}
+T_kruskal::T_kruskal(const int v_num) {
+    edges.clear();
+    parent.assign(v_num, v0);
+}
+void T_kruskal::reset(const vec<vec<Edge>>& adj_list) {
+    for (int i = 0; i < adj_list.size(); ++i)
+        parent[i] = i;
+    for (const vec<Edge>& vec_e : adj_list)
+        for (const Edge& e : vec_e)
+            if (e.to < e.from)
+                edges.push_back(e);
+    sort(edges.begin(), edges.end(), edge_shorter);
+}
+int T_kruskal::find(const int v) {
+    // Path compression: p[v] = f(pp[v]) = ff(ppp[v]) = ... = v
+    return parent[v] == v ? v : parent[v] = find(parent[v]);
+}
+bool T_kruskal::attach(const Edge& e) {
+    return find(e.from) == find(e.to);
+}
 
-struct Edge_greater {
-    bool operator() (const Edge& e, const Edge& ee) const {
-        return e.cost > ee.cost;
-    }
-};
 
 // Directed weighted graph
+Graph_W::Graph_W(Graph_W&& g) {
+    adj_list_ = std::move(g.adj_list_);
+    has_edge_ = std::move(g.has_edge_);
+    name      = std::move(g.name);
+}
+Graph_W& Graph_W::operator=(Graph_W&& g) {
+    adj_list_ = std::move(g.adj_list_);
+    has_edge_ = std::move(g.has_edge_);
+    name      = std::move(g.name);
+    return *this;
+}
+Graph_W::Graph_W(const int v_num, const string& name = "_no_name") {
+    adj_list_ = vec<vec<Edge>>(v_num);
+    has_edge_ = vec<vec<bool>>(v_num, vec<bool>(v_num, false));
+    this->name = name;
+}
 
-class Graph_W {
 
-private:
-
-    vec<vec<Edge>> adj_list_; // adj_list[from] -> { (from, to, cost) }
-    vec<vec<bool>> has_edge_; // has_edge[from][to] // todo: unordered_set
-
-public:
-
-    // Warning: copying will cause problems
-    const vec<vec<Edge>>& adj_list = adj_list_;
-    const vec<vec<bool>>& has_edge = has_edge_;
-
-    string name = "__empty";
-
-    Graph_W() = default;
-    Graph_W(Graph_W&& g) {
-        adj_list_ = std::move(g.adj_list_);
-        has_edge_ = std::move(g.has_edge_);
-        name      = std::move(g.name);
+// Directed edges
+void Graph_W::add_e(const int from, const int to, const int cost) {
+    if (has_edge[from][to]) {
+        cout << "Graph_W \"" << name << "\": add_e("
+            << from << ", " << to << ", " << cost
+            << ") not complete \n";
+        return;
     }
-    Graph_W& operator=(Graph_W&& g) {
-        adj_list_ = std::move(g.adj_list_);
-        has_edge_ = std::move(g.has_edge_);
-        name      = std::move(g.name);
-        return *this;
+    has_edge_[from][to] = true;
+    adj_list_[from].push_back(Edge(from, to, cost));
+}
+void Graph_W::add_e(const Edge& e) {
+    add_e(e.from, e.to, e.cost);
+}
+void Graph_W::demo(const string& name = "") {
+    *this = Graph_W(3, name + " [0>1>2<0]");
+    add_e(0, 1, 1);
+    add_e(1, 2, 1);
+    add_e(0, 2, 3);
+}
+
+
+// Undirected edges
+void Graph_W::add_ue(const int from, const int to, const int cost) {
+    if (has_edge[from][to] || has_edge[to][from]) {
+        cout << "Graph_W \"" << name << "\": add_ue("
+            << from << ", " << to << ", " << cost
+            << ") not complete \n";
+        return;
     }
-    explicit Graph_W(const int v_num, string name = "__no_name")
-        : adj_list_(v_num),
-          has_edge_(v_num, vec<bool>(v_num, false)),
-          name(std::move(name)) {}
-
-
-    // Add directed edge
-    void add_e(const int from, const int to, const int cost) {
-        if (has_edge[from][to]) {
-            cout << "Graph_W \"" << name << "\": add_e("
-                << from << ", " << to << ", " << cost
-                << ") not complete \n";
-            return;
-        }
-        has_edge_[from][to] = true;
-        adj_list_[from].push_back(Edge(from, to, cost));
+    has_edge_[from][to] = true;
+    adj_list_[from].push_back(Edge(from, to, cost));
+    if (from != to) {
+        has_edge_[to][from] = true;
+        adj_list_[to].push_back(Edge(to, from, cost));
     }
-    void add_e(const Edge& e) {
-        add_e(e.from, e.to, e.cost);
-    }
-
-    void demo(string name = "") {
-        name += " [0>1>2<0]";
-        *this = Graph_W(3, name);
-        add_e(0, 1, 1);
-        add_e(1, 2, 1);
-        add_e(0, 2, 3);
-    }
-
-    // Add undirected edge
-    void add_ue(const int from, const int to, const int cost) {
-        if (has_edge[from][to] || has_edge[to][from]) {
-            cout << "Graph_W \"" << name << "\": add_ue("
-                << from << ", " << to << ", " << cost
-                << ") not complete \n";
-            return;
-        }
-        has_edge_[from][to] = true;
-        adj_list_[from].push_back(Edge(from, to, cost));
-        if (from != to) {
-            has_edge_[to][from] = true;
-            adj_list_[to].push_back(Edge(to, from, cost));
-        }
-    }
-    void add_ue(const Edge& e) {
-        add_ue(e.from, e.to, e.cost);
-    }
-
-    void demo_undirected(string name = "") {
-        name += " [0-1-2-0]";
-        *this = Graph_W(3, name);
-        add_ue(0, 1, 1);
-        add_ue(1, 2, 2);
-        add_ue(2, 0, 3);
-    }
+}
+void Graph_W::add_ue(const Edge& e) {
+    add_ue(e.from, e.to, e.cost);
+}
+void Graph_W::demo_undirected(const string& name = "") {
+    *this = Graph_W(3, name + " [0-1-2-0]");
+    add_ue(0, 1, 1);
+    add_ue(1, 2, 2);
+    add_ue(2, 0, 3);
+}
 
 
-    bool is_undirected() const {
-        vec<bool> checked(has_edge.size(), false);
-        for (int i = 0; i < has_edge.size(); ++i) {
-            for (int j = 0; j < has_edge.size(); ++j) {
-                if (checked[j])
-                    continue;
-                if (has_edge[i][j] != has_edge[j][i])
-                    return false;
-                int cost_i_j = 0;
-                int cost_j_i = 0;
-                for (const Edge& e : adj_list[i])
-                    if (e.to == j) {
-                        cost_i_j = e.cost;
-                        break;
-                    }
-                for (const Edge& e : adj_list[j])
-                    if (e.to == i) {
-                        cost_j_i = e.cost;
-                        break;
-                    }
-                if (cost_i_j != cost_j_i)
-                    return false;
-            }
-            checked[i] = true;
-        }
-        return true;
-    }
-
-
-    void dijkstra(T_dijkstra& t, const int start) {
-    
-        // {path, vertex}
-        priority_queue<Pair, vec<Pair>, greater<Pair>> pq;
-
-        t.reset(adj_list.size(), start);
-
-        vec<int>& d = t.dist[start];
-    
-        pq.push({0, start});
-        d[start] = 0;
-    
-        while (!pq.empty()) {
-            Pair P = pq.top();
-            pq.pop();
-            if (P.first > d[P.second])
+bool Graph_W::is_undirected() const {
+    vec<bool> checked(has_edge.size(), false);
+    for (int i = 0; i < has_edge.size(); ++i) {
+        for (int j = 0; j < has_edge.size(); ++j) {
+            if (checked[j])
                 continue;
-            for (const Edge& E : adj_list[P.second]) {
-                int path = d[P.second] + E.cost;
-                if (path < d[E.to]) {
-                    d[E.to] = path;
-                    pq.push({path, E.to});
+            if (has_edge[i][j] != has_edge[j][i])
+                return false;
+            int cost_i_j = 0;
+            int cost_j_i = 0;
+            for (const Edge& e : adj_list[i])
+                if (e.to == j) {
+                    cost_i_j = e.cost;
+                    break;
                 }
+            for (const Edge& e : adj_list[j])
+                if (e.to == i) {
+                    cost_j_i = e.cost;
+                    break;
+                }
+            if (cost_i_j != cost_j_i)
+                return false;
+        }
+        checked[i] = true;
+    }
+    return true;
+}
+
+
+// pq -> P
+//  for (E : adj_list[P.second])
+//   if (path = d[P.second] + E.cost < d[E.to])
+//    d[E.to] = path;
+//     pq.push({path, E.to})
+//
+void Graph_W::dijkstra(T_dijkstra& t, const int start) {
+
+    // {path, vertex}
+    priority_queue<Pair, vec<Pair>, greater<Pair>> pq;
+
+    t.reset(adj_list.size(), start);
+
+    vec<int>& d = t.dist[start];
+
+    pq.push({0, start});
+    d[start] = 0;
+
+    while (!pq.empty()) {
+        Pair P = pq.top();
+        pq.pop();
+        if (P.first > d[P.second])
+            continue;
+        for (const Edge& E : adj_list[P.second]) {
+            int path = d[P.second] + E.cost;
+            if (path < d[E.to]) {
+                d[E.to] = path;
+                pq.push({path, E.to});
             }
         }
     }
+}
+void Graph_W::dijkstra(T_dijkstra& t) {
+    for (int i = 0; i < adj_list.size(); ++i)
+        dijkstra(t, i);
+}
 
-    void dijkstra(T_dijkstra& t) {
-        for (int i = 0; i < adj_list.size(); ++i)
-            dijkstra(t, i);
-    }
 
+// Growing a tree.
+//  Traverses only one connected component.
+bool Edge_greater::operator() (const Edge& e, const Edge& ee) const {
+    return e.cost > ee.cost;
+}
+Graph_W Graph_W::prim(const int start) {
 
-    // Growing a tree.
-    //  Traverses only one connected component.
-    Graph_W prim(const int start) {
+    if (!is_undirected())
+        throw("Graph_W \"" + name + "\"" + "is directed. prim() did not execute");
 
-        if (!is_undirected())
-            throw("Graph_W \"" + name + "\"" + "is directed. prim() did not execute");
+    priority_queue<Edge, vec<Edge>, Edge_greater> pq;
+    Graph_W   tree(adj_list.size(), name + " -> prim(" + to_string(start) +")");
+    vec<bool> in_tree(adj_list.size(), false);
+    int       e_num = 0;
 
-        priority_queue<Edge, vec<Edge>, Edge_greater> pq;
-        Graph_W tree(adj_list.size(), name + " -> prim(" + to_string(start) +")");
-        vec<bool> in_tree(adj_list.size(), false);
-        int e_num = 0;
+    in_tree[start] = true;
+    for (const Edge& e : adj_list[start])
+        pq.push(e);
 
-        in_tree[start] = true;
-        for (const Edge& e : adj_list[start])
-            pq.push(e);
+    while(!pq.empty()) {
+        if (e_num >= in_tree.size() - 1)
+            break;
+        Edge e = pq.top(); pq.pop();
 
-        while(!pq.empty()) {
-            if (e_num >= in_tree.size() - 1)
-                break;
-            Edge e = pq.top(); pq.pop();
-    
-            // В одной из предыдущих итераций "while()"
-            //  извлеченное ребро называелось "e".
-            // 
-            // Тогда же вершина (1) "e.to" была добавлена в
-            //  дерево: "in_tree[e.to] = true".
-            //   Затем все ребра (1)->(2), соединяющие с
-            //    потенциальными новыми вершинами, отправились
-            //     в очередь: "pq.push(ee)".
-            // 
-            // Сейчас очередное ребро "e", извлеченное из очереди,
-            //  соединяет вершины (1) "e.from" -> (2) "e.to".
-            // 
-            // Значит, теперь "in_tree[e.from] == true".
-            //  Как и в любой другой итерации: по индукции,
-            //   начиная со "start".
-    
-            if (in_tree[e.to])
-                continue;
-            else {
-                e_num += 1;
-                tree.add_ue(e);
-                in_tree[e.to] = true;
-                for (Edge ee : adj_list[e.to])
-                    if (!in_tree[ee.to])
-                        pq.push(ee);
-            }
+        // В одной из предыдущих итераций "while()"
+        //  извлеченное ребро называелось "e".
+        // 
+        // Тогда же вершина (1) "e.to" была добавлена в
+        //  дерево: "in_tree[e.to] = true".
+        //   Затем все ребра (1)->(2), соединяющие с
+        //    потенциальными новыми вершинами, отправились
+        //     в очередь: "pq.push(ee)".
+        // 
+        // Сейчас очередное ребро "e", извлеченное из очереди,
+        //  соединяет вершины (1) "e.from" -> (2) "e.to".
+        // 
+        // Значит, теперь "in_tree[e.from] == true".
+        //  Как и в любой другой итерации: по индукции,
+        //   начиная со "start".
+
+        if (in_tree[e.to])
+            continue;
+        else {
+            e_num += 1;
+            tree.add_ue(e);
+            in_tree[e.to] = true;
+            for (Edge ee : adj_list[e.to])
+                if (!in_tree[ee.to])
+                    pq.push(ee);
         }
-
-        return tree;
     }
 
+    return tree;
+}
 
-    // Growing a forest.
-    //  struct DSU (Disjoint-Set Unit): find + union.
-    //   Capable of traversing a disconnected graph.
-    Graph_W kruskal() {
-        Graph_W tree(adj_list.size(), "tree");
-        if (!is_undirected())
-            throw("Graph_W \"" + name + "\"" + "is directed. kruskal() did not execute");
-        // ...
-        return tree;
+
+// Growing a forest.
+//  struct DSU (Disjoint-Set Unit): find + union.
+//   Capable of traversing a disconnected graph.
+Graph_W Graph_W::kruskal() {
+
+    if (!is_undirected())
+        throw("Graph_W \"" + name + "\"" + "is directed. kruskal() did not execute");
+
+    Graph_W   tree(adj_list.size(), name + " -> kruskal()");
+    T_kruskal t(adj_list.size());
+    
+    while (t.edges.size() > 0) {
+        Edge e = t.edges.back();
+        t.edges.pop_back();
+        // todo ...
     }
 
-};
+    return tree;
+}
+
 
 ostream& operator<<(ostream& os, const Graph_W& g) {
     os << (g.is_undirected() ? "Undirected" : "Directed")
