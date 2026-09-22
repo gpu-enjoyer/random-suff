@@ -6,12 +6,12 @@
 
 // Traversal for BFS
 
-void T_bfs::reset(const int v_num) {
+void T_bfs::reset(const int v_num) { //! O(V^2)
     dist.assign(v_num, vector<int>(v_num, dist0));
     q = queue<int>();
 }
 
-void T_bfs::reset(const int v_num, const int v) {
+void T_bfs::reset(const int v_num, const int v) {  //! O(V)
     if (dist.size() != v_num)
         reset(v_num);
     dist[v].assign(v_num, dist0);

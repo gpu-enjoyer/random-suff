@@ -32,17 +32,17 @@ void Graph::demo_cyclic() {
 
 // Breadth-First Search
 
-void Graph::bfs(T_bfs& T, int v) {
+void Graph::bfs(T_bfs& T, int v) { //! O(V+E)
     if (v >= v_num())
         throw out_of_range("root >= v_num");
-    T.reset(v_num(), v);
+    T.reset(v_num(), v); //! O(V)
     vector<int>& dist = T.dist[v];
     dist[v] = 0;
     T.q.push(v);
-    while(!T.q.empty()) {
+    while(!T.q.empty()) {  //! O(V)
         v = T.q.front();
         T.q.pop();
-        for (int vv : adj[v])
+        for (int vv : adj[v]) //! O(E/V)
             if (dist[vv] == T.dist0) {
                 dist[vv] = dist[v] + 1;
                 T.q.push(vv);
