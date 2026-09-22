@@ -3,11 +3,14 @@
 
 ## Demo
 
-<div>
-    <img src="demo/demo.png"        width="30%">
-    <img src="demo/demo_cyclic.png" width="30%">
-</div>
-
+<table>
+    <tr>
+        <td><img src="demo/unweighted_acyclic.png"></td>
+        <td><img src="demo/unweighted_cyclic.png"></td>
+        <td><img src="demo/weighted_directed.png"></td>
+        <td><img src="demo/weighted_undirected.png"></td>
+    </tr>
+</table>
 
 ## Roadmap
 
