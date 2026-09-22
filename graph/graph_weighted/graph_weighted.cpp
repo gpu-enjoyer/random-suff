@@ -161,11 +161,10 @@ bool Graph_W::is_undirected() const {
 
 
 // pq -> P
-//  for (E : adj_list[P.second])
-//   if (path = d[P.second] + E.cost < d[E.to])
-//    d[E.to] = path;
-//     pq.push({path, E.to})
-//
+// for (E : adj_list[P.second])
+//  if (path = d[P.second] + E.cost < d[E.to]) {
+//   d[E.to] = path;
+//   pq.push({path, E.to}) }
 void Graph_W::dijkstra(T_dijkstra& t, const int start) {
 
     // {path, vertex}
@@ -255,8 +254,7 @@ Graph_W Graph_W::prim(const int start) {
 
 
 // Growing a forest.
-//  struct DSU (Disjoint-Set Unit): find + union.
-//   Capable of traversing a disconnected graph.
+//  Capable of traversing a disconnected graph.
 Graph_W Graph_W::kruskal() {
 
     if (!is_undirected())
@@ -283,7 +281,7 @@ ostream& operator<<(ostream& os, const Graph_W& g) {
         os << " " << i << " -> ";
         for (int j = 0; j < g.adj_list[i].size(); ++j) {
             const Edge& e = g.adj_list[i][j];
-            os << e.to << '{' << e.cost << "} ";
+            os << e.to << '(' << e.cost << ") ";
         }
         os << '\n';
     }
