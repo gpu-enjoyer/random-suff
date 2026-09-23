@@ -11,7 +11,7 @@ void T_bfs::reset(const int v_num) { //! O(V^2)
     q = queue<int>();
 }
 
-void T_bfs::reset(const int v_num, const int v) {  //! O(V)
+void T_bfs::reset(const int v_num, const int v) {  //! O(V) amort.
     if (dist.size() != v_num)
         reset(v_num);
     dist[v].assign(v_num, dist0);
@@ -21,13 +21,13 @@ void T_bfs::reset(const int v_num, const int v) {  //! O(V)
 
 // Traversal for Topological Sort
 
-void T_topsort::reset(const int v_num) {
-    cycles.clear();
-    in.assign(v_num, t0);
-    out.assign(v_num, t0);
-    parent.assign(v_num, t0);
-    topsort = stack<int>();
-    timer = 0;
+void T_topsort::reset(const int v_num) { // O(V)
+    cycles.clear();           // O(1)
+    in.assign(v_num, t0);     // O(V)
+    out.assign(v_num, t0);    // O(V)
+    parent.assign(v_num, t0); // O(V)
+    topsort = stack<int>();   // O(1)
+    timer = 0;                // O(1)
 }
 
 

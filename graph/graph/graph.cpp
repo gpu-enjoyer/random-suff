@@ -30,59 +30,88 @@ void Graph::demo_cyclic() {
 }
 
 
-// Breadth-First Search
+// Breadth-First Search.
+//  O(V + E) amort., O(V^2) on 1-st launch
+void Graph::bfs(T_bfs& t, int v) {
 
-void Graph::bfs(T_bfs& T, int v) { //! O(V+E)
     if (v >= v_num())
         throw out_of_range("root >= v_num");
-    T.reset(v_num(), v); //! O(V)
-    vector<int>& dist = T.dist[v];
+
+    t.reset(v_num(), v); // O(V) amort., O(V^2) on 1-st launch
+
+    vector<int>& dist = t.dist[v];
     dist[v] = 0;
-    T.q.push(v);
-    while(!T.q.empty()) {  //! O(V)
-        v = T.q.front();
-        T.q.pop();
-        for (int vv : adj[v]) //! O(E/V)
-            if (dist[vv] == T.dist0) {
+    t.q.push(v);
+
+    while(!t.q.empty()) // O(V)
+    {
+        v = t.q.front();
+        t.q.pop();
+
+        for (int vv : adj[v]) // O(E/V) amort.
+        {
+            if (dist[vv] == t.dist0) {
                 dist[vv] = dist[v] + 1;
-                T.q.push(vv);
+                t.q.push(vv);
             }
+        }
     }
 }
 
-void Graph::bfs(T_bfs& T) {
-    T.reset(v_num());
-    for (int v = 0; v < v_num(); ++v)
-        bfs(T, v);
+// O(V^2 + EV)
+void Graph::bfs(T_bfs& t) {
+    t.reset(v_num());                  // O(V^2)
+    for (int v = 0; v < v_num(); ++v)  // O(V)
+        bfs(t, v);                     //  O(V + E)
 }
 
 
 // Topological Sort
+//  Vi := "Vertices visited during this call"
+//  Ei := "Edges considered during this call"
+//   DAG: O(Vi + Ei)
+//!  Cyclic graph:
+//!   O(Vi + Ei + Ei*Vi) = O(Vi + Ei*Vi)
+void Graph::topsort_(T_topsort& t, int v) {
 
-void Graph::topsort_(T_topsort& T, int v) {
-    T.in[v] = T.timer++;
-    for (int vv : adj[v])
-        if (T.in[vv] == T.t0) {
-            T.parent[vv] = v;
-            topsort_(T, vv);
+    t.in[v] = t.timer++;
+
+    for (int vv : adj[v]) // Σ = E = O(E)
+    {
+        // DFS. Visit any vertex 1 time
+        if (t.in[vv] == t.t0)
+        // 'false' => (*), 'true' => O(V)
+        {
+            t.parent[vv] = v;
+            topsort_(t, vv);  // Depth ≤ V = O(V)
         }
-        else if (T.out[vv] == T.t0) {
+        // (*) Cycle detected
+        else if (t.out[vv] == t.t0) //! Σ (grey vertices) ≤ O(E)
+        {
             vector<int> cycle;
-            for (int u = v; u != vv; u = T.parent[u])
+            // Get cycle
+            for (int u = v; u != vv; u = t.parent[u]) //! ≤ O(V)
                 cycle.push_back(u);
             cycle.push_back(vv);
             reverse(cycle.begin(), cycle.end());
-            T.cycles.push_back(cycle);
+            t.cycles.push_back(cycle);
         }
-    T.out[v] = T.timer++;
-    T.topsort.push(v);
+    }
+
+    t.out[v] = t.timer++;
+    t.topsort.push(v);
 }
 
-void Graph::topsort(T_topsort& T) {
-    T.reset(v_num());
+//  DAG: O(V + E)
+//! Cyclic graph:
+//!  O(V + ΣVi + ΣEiVi) ≤ O(V + E * ΣVi) = O(V + EV)
+void Graph::topsort(T_topsort& t) {
+    t.reset(v_num());                 // O(V)
     for (int v = 0; v < v_num(); ++v)
-        if (T.in[v] == T.t0)
-            topsort_(T, v);
+        if (t.in[v] == t.t0)          // Σ ≤ V = O(V)
+            topsort_(t, v);
+    if (t.cycles.size() != 0)
+        t.topsort = stack<int>();     // O(1)
 }
 
 

@@ -14,7 +14,10 @@ class Graph
     private:
 
         vector<vector<int>> adj_;
-        void topsort_(T_topsort& T, int v);
+
+        // DAG:    O(Vi + Ei)
+        // Cyclic: O(Vi + Ei*Vi)
+        void topsort_(T_topsort& t, int v);
 
     public:
 
@@ -31,12 +34,16 @@ class Graph
         void demo();
         void demo_cyclic();
 
-        // Breadth-First Search
-        void bfs(T_bfs& T, const int root);
-        void bfs(T_bfs& T);
+        // 1-st launch: O(V^2)
+        // Amortized:   O(V + E)
+        void bfs(T_bfs& t, const int root);
 
-        // Topological Sort
-        void topsort(T_topsort& T);
+        // O(V^2 + EV)
+        void bfs(T_bfs& t);
+
+        // DAG:    O(V + E)
+        // Cyclic: O(V + EV)
+        void topsort(T_topsort& t);
 };
 
 ostream& operator<<(ostream& os, const Graph& g);
