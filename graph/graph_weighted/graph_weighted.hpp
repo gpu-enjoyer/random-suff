@@ -66,7 +66,7 @@ class Graph_W {
 
     public:
 
-        // Warning: copying will cause problems
+        // Warning: copying a class instance causes problems.
         const vec<vec<Edge>>& adj_list = adj_list_;
         const vec<vec<bool>>& has_edge = has_edge_;
         string                name = "_empty";
@@ -84,10 +84,11 @@ class Graph_W {
         void add_ue(const Edge& e);
         void demo_undirected(const string& name);
 
+        bool is_non_negative() const;
         bool is_undirected() const;
 
-        void dijkstra(T_dijkstra& t, const int start);
-        void dijkstra(T_dijkstra& t);
+        void dijkstra(T_dijkstra& t, const int start); // O(V + E*log E) amort.
+        void dijkstra(T_dijkstra& t);  // O(V^2 + V*E*log E) amort.
 
         Graph_W prim(const int start);
 

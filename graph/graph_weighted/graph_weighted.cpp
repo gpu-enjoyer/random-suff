@@ -6,10 +6,12 @@
 
 
 // Traversal for Dijkstra's algorithm
+// O(V^2)
 void T_dijkstra::reset(const int v_num) {
         dist.assign(v_num, vec<int>(v_num, inf));
         done.assign(v_num, false);
 }
+// O(V) amort.
 void T_dijkstra::reset(const int v_num, const int start) {
         if (dist.size() != v_num)
             reset(v_num);
@@ -131,6 +133,12 @@ void Graph_W::demo_undirected(const string& name = "") {
 }
 
 
+// bool Graph_W::is_non_negative() const {
+//     ;
+// }
+
+// O(?)
+//  Expensive
 bool Graph_W::is_undirected() const {
     vec<bool> checked(has_edge.size(), false);
     for (int i = 0; i < has_edge.size(); ++i) {
@@ -160,38 +168,68 @@ bool Graph_W::is_undirected() const {
 }
 
 
-// O(E^2 / V) at worst (?)
+//* O(V + E * log E) amort.
 void Graph_W::dijkstra(T_dijkstra& t, const int start) {
 
     // Pair {dist, vertex}
     priority_queue<Pair, vec<Pair>, greater<Pair>> pq;
 
+    // O(V) amort., O(V^2) on 1-st launch
     t.reset(adj_list.size(), start);
 
     vec<int>& dist = t.dist[start];
 
     pq.push({0, start});
     dist[start] = 0;
+    
+    //  Code below complexity:
+    //*  O(E * log E) + V * O(E * log E / V)
+    //*   = O(E * log E)
 
-    while (!pq.empty()) // O(E) at worst
+    while (!pq.empty()) //*  Σ = O(E)
     {
-        Pair p = pq.top(); pq.pop();
+        Pair p = pq.top(); pq.pop();  //* O(log E)
 
-        if (p.first > dist[p.second]) // (*) O(1)
-            continue;
+        if (p.first > dist[p.second])
+            continue; // O(1)
 
-        for (const Edge& e : adj_list[p.second]) // (**) O(E/V) amort.
+        // else (p.first <= dist[p.second])
+        //  Only 1 time for any `p` with `p.second` in V
+
+        //  Code below executed
+        //*  Σ = V times
+
+        //  Code below complexity:
+        //*  O(E * log E / V)
+
+
+        //  Прежде мне казалось, что можно предоставить граф
+        //   с любым количеством новых меньших путей `p.first`.
+        //    Это неверно.
+        //
+        //  В какой-то момент алгоритм в первый раз
+        //   посмотрит на `v` из новой вершины `p.second`
+        //    и предложит путь `p.first`.
+        //
+        //  Сначала расстояние `dist[v]` до вершины `v` равно `inf`,
+        //   поэтому гарантировано выполнение `else`.
+        //
+        //  Всякий последующий раз для вершины `v` мы сможем рассмотреть 
+        //   путь `p.first` только больший или равный, чем в первый раз,
+        //    так как алгоритм берет из кучи самые короткие пути и `e.cost`≥ 0.
+
+        for (const Edge& e : adj_list[p.second])  //* O(E/V) amort.
         {
             int new_dist = dist[p.second] + e.cost;
             if (new_dist < dist[e.to]) {
                 dist[e.to] = new_dist;
-                pq.push({new_dist, e.to});
+                pq.push({new_dist, e.to});  //* O(log E)
             }
         }
     }
 }
 
-// O(V * E^2 / V) = O(E^2) (?)
+// O(V^2 + V*E*log E) amort.
 void Graph_W::dijkstra(T_dijkstra& t) {
     for (int i = 0; i < adj_list.size(); ++i)
         dijkstra(t, i);
