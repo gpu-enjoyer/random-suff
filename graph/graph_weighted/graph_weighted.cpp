@@ -160,37 +160,36 @@ bool Graph_W::is_undirected() const {
 }
 
 
-// pq -> P
-// for (E : adj_list[P.second])
-//  if (path = d[P.second] + E.cost < d[E.to]) {
-//   d[E.to] = path;
-//   pq.push({path, E.to}) }
+// O(?)
 void Graph_W::dijkstra(T_dijkstra& t, const int start) {
 
-    // {path, vertex}
+    // Pair {dist, vertex}
     priority_queue<Pair, vec<Pair>, greater<Pair>> pq;
 
     t.reset(adj_list.size(), start);
 
-    vec<int>& d = t.dist[start];
+    vec<int>& dist = t.dist[start];
 
     pq.push({0, start});
-    d[start] = 0;
+    dist[start] = 0;
 
-    while (!pq.empty()) {
-        Pair P = pq.top();
-        pq.pop();
-        if (P.first > d[P.second])
+    while (!pq.empty())
+    {
+        Pair p = pq.top(); pq.pop();
+
+        if (p.first > dist[p.second])
             continue;
-        for (const Edge& E : adj_list[P.second]) {
-            int path = d[P.second] + E.cost;
-            if (path < d[E.to]) {
-                d[E.to] = path;
-                pq.push({path, E.to});
+
+        for (const Edge& e : adj_list[p.second]) {
+            int new_dist = dist[p.second] + e.cost;
+            if (new_dist < dist[e.to]) {
+                dist[e.to] = new_dist;
+                pq.push({new_dist, e.to});
             }
         }
     }
 }
+
 void Graph_W::dijkstra(T_dijkstra& t) {
     for (int i = 0; i < adj_list.size(); ++i)
         dijkstra(t, i);
