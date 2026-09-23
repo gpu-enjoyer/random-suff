@@ -160,7 +160,7 @@ bool Graph_W::is_undirected() const {
 }
 
 
-// O(?)
+// O(E^2 / V) at worst (?)
 void Graph_W::dijkstra(T_dijkstra& t, const int start) {
 
     // Pair {dist, vertex}
@@ -173,14 +173,15 @@ void Graph_W::dijkstra(T_dijkstra& t, const int start) {
     pq.push({0, start});
     dist[start] = 0;
 
-    while (!pq.empty())
+    while (!pq.empty()) // O(E) at worst
     {
         Pair p = pq.top(); pq.pop();
 
-        if (p.first > dist[p.second])
+        if (p.first > dist[p.second]) // (*) O(1)
             continue;
 
-        for (const Edge& e : adj_list[p.second]) {
+        for (const Edge& e : adj_list[p.second]) // (**) O(E/V) amort.
+        {
             int new_dist = dist[p.second] + e.cost;
             if (new_dist < dist[e.to]) {
                 dist[e.to] = new_dist;
@@ -190,6 +191,7 @@ void Graph_W::dijkstra(T_dijkstra& t, const int start) {
     }
 }
 
+// O(V * E^2 / V) = O(E^2) (?)
 void Graph_W::dijkstra(T_dijkstra& t) {
     for (int i = 0; i < adj_list.size(); ++i)
         dijkstra(t, i);
