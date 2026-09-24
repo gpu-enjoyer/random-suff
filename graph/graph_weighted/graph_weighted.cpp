@@ -238,9 +238,6 @@ void Graph_W::dijkstra(T_dijkstra& t) {
 
 // Growing a tree.
 //  Traverses only one connected component.
-bool Edge_greater::operator() (const Edge& e, const Edge& ee) const {
-    return e.cost > ee.cost;
-}
 Graph_W Graph_W::prim(const int start) {
 
     if (!is_undirected())
@@ -289,6 +286,10 @@ Graph_W Graph_W::prim(const int start) {
     }
 
     return tree;
+}
+
+bool Edge_greater::operator() (const Edge& e, const Edge& ee) const {
+    return e.cost > ee.cost;
 }
 
 
