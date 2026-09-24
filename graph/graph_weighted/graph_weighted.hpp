@@ -85,7 +85,7 @@ class Graph_W {
         void demo_undirected(const string& name);
 
         bool is_non_negative() const;
-        bool is_undirected() const;
+        bool is_undirected() const; // O(V^2 + EV)
 
         void dijkstra(T_dijkstra& t, const int start); // O(V + E*log E) amort.
         void dijkstra(T_dijkstra& t);  // O(V^2 + V*E*log E) amort.

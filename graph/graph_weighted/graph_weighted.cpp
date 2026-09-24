@@ -137,34 +137,35 @@ void Graph_W::demo_undirected(const string& name = "") {
 //     ;
 // }
 
-// O(?)
-//  Expensive
+// O(V + V*(V+V/2*(E/V)))
+//  = O(V^2 + EV)
 bool Graph_W::is_undirected() const {
-    vec<bool> checked(has_edge.size(), false);
-    for (int i = 0; i < has_edge.size(); ++i) {
-        for (int j = 0; j < has_edge.size(); ++j) {
-            if (checked[j])
-                continue;
-            if (has_edge[i][j] != has_edge[j][i])
-                return false;
-            int cost_i_j = 0;
-            int cost_j_i = 0;
-            for (const Edge& e : adj_list[i])
-                if (e.to == j) {
-                    cost_i_j = e.cost;
-                    break;
-                }
-            for (const Edge& e : adj_list[j])
-                if (e.to == i) {
-                    cost_j_i = e.cost;
-                    break;
-                }
-            if (cost_i_j != cost_j_i)
-                return false;
-        }
-        checked[i] = true;
-    }
-    return true;
+    vec<bool> checked(has_edge.size(), false);       // O(V)
+    for (int i = 0; i < has_edge.size(); ++i) {      // O(V)
+        for (int j = 0; j < has_edge.size(); ++j)    //
+        {                                            //   {
+            if (checked[j])                          //     if:   Σ = V,   O(1)
+                continue;                            //     else: Σ = V/2, O(E/V)
+            if (has_edge[i][j] != has_edge[j][i])    //     {
+                return false;                        //       got lucky
+            int cost_i_j = 0;                        //
+            int cost_j_i = 0;                        //
+            for (const Edge& e : adj_list[i])        //       Σ = E/2V = O(E/V) amort.
+                if (e.to == j) {                     //         O(1)
+                    cost_i_j = e.cost;               //
+                    break;                           //
+                }                                    //
+            for (const Edge& e : adj_list[j])        //       Σ = E/2V = O(E/V) amort.
+                if (e.to == i) {                     //         O(1)
+                    cost_j_i = e.cost;               //
+                    break;                           //
+                }                                    //
+            if (cost_i_j != cost_j_i)                //       got lucky
+                return false;                        //
+        }                                            //     }
+        checked[i] = true;                           //
+    }                                                //   }
+    return true;                                     //
 }
 
 
