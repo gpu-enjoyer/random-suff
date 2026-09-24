@@ -39,25 +39,24 @@ ostream& operator<<(ostream& os, const T_dijkstra& t) {
 bool edge_shorter(const Edge& e, const Edge& ee) {
     return e.cost < ee.cost;
 }
-T_kruskal::T_kruskal(const int v_num) {
+T_kruskal::T_kruskal(const int v_num) { // O(V)
     edges.clear();
     parent.assign(v_num, v0);
 }
-void T_kruskal::reset(const vec<vec<Edge>>& adj_list) {
-    for (int i = 0; i < adj_list.size(); ++i)
+void T_kruskal::reset(const vec<vec<Edge>>& adj_list) { // O(E * log E)
+    for (int i = 0; i < adj_list.size(); ++i) // O(V)
         parent[i] = i;
-    for (const vec<Edge>& vec_e : adj_list)
+    for (const vec<Edge>& vec_e : adj_list) // O(E)
         for (const Edge& e : vec_e)
             if (e.to < e.from)
                 edges.push_back(e);
-    sort(edges.begin(), edges.end(), edge_shorter);
+    sort(edges.begin(), edges.end(), edge_shorter); // O(E * log E)
 }
-int T_kruskal::find(const int v) {
+int T_kruskal::find(const int v) { // O(1) amort.
     // Path compression: p[v] = f(pp[v]) = ff(ppp[v]) = ... = v
     return parent[v] == v ? v : parent[v] = find(parent[v]);
 }
-
-bool T_kruskal::attach(const Edge& e) {
+bool T_kruskal::attach(const Edge& e) { // O(1) amort.
     if (find(e.from) != find(e.to)) {
         parent[find(e.from)] = find(e.to);
         return true;
@@ -78,6 +77,7 @@ Graph_W& Graph_W::operator=(Graph_W&& g) {
     name      = std::move(g.name);
     return *this;
 }
+// O(V^2)
 Graph_W::Graph_W(const int v_num, const string& name = "_no_name") {
     adj_list_ = vec<vec<Edge>>(v_num);
     has_edge_ = vec<vec<bool>>(v_num, vec<bool>(v_num, false));
@@ -252,7 +252,7 @@ void Graph_W::dijkstra(T_dijkstra& t) {
 Graph_W Graph_W::prim(const int start) {
 
     if (!is_undirected())
-        throw("Graph_W \"" + name + "\"" + "is directed. \n"
+        throw("Graph_W \"" + name + "\"" + " is directed. \n"
             + "prim() did not execute \n");
 
     priority_queue<Edge, vec<Edge>, Edge_greater> pq;
@@ -307,17 +307,27 @@ bool Edge_greater::operator() (const Edge& e, const Edge& ee) const {
 
 // Growing a forest.
 //  Capable of traversing a disconnected graph.
+//   O(V^2 + EV + E * log E) = O(V^2 + EV)
+//    V^2 + EV  – stupid is_undirected() + Graph_W(v_num)
+//    E * log E – std::sort()
 Graph_W Graph_W::kruskal() {
 
+    // O(V^2 + EV)
     if (!is_undirected())
-        throw("Graph_W \"" + name + "\"" + "is directed. \n"
+        throw(
+            "Graph_W \"" + name + "\"" + " is directed. \n"
             + "kruskal() did not execute \n");
 
+    // O(V^2)
     Graph_W   tree(adj_list.size(), name + " -> kruskal()");
+
+    // O(V)
     T_kruskal t(adj_list.size());
 
+    // O(E * log E)
     t.reset(adj_list);
     
+    // O(E)
     for (int i = 0; i < t.edges.size(); ++i) {
         if(t.attach(t.edges[i]))
             tree.add_ue(t.edges[i]);

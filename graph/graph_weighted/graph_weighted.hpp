@@ -48,10 +48,10 @@ struct T_kruskal {
     static constexpr int v0 = -1;
     vec<Edge> edges;
     vec<int>  parent;
-    T_kruskal(const int v_num);
-    void reset(const vec<vec<Edge>>& adj_list);
-    int  find(const int v);
-    bool attach(const Edge& e);
+    T_kruskal(const int v_num);                 // O(V)
+    void reset(const vec<vec<Edge>>& adj_list); // O(E * log E)
+    int  find(const int v);                     // O(1) amort.
+    bool attach(const Edge& e);                 // O(1) amort.
 };
 
 
@@ -74,7 +74,7 @@ class Graph_W {
         Graph_W() = default;
         Graph_W(Graph_W&& g);
         Graph_W& operator=(Graph_W&& g);
-        explicit Graph_W(const int v_num, const string& name);
+        explicit Graph_W(const int v_num, const string& name); // O(V^2)
 
         void add_e(const int from, const int to, const int cost);
         void add_e(const Edge& e);
@@ -92,6 +92,9 @@ class Graph_W {
 
         Graph_W prim(const int start);
 
+        // O(V^2 + EV)
+        //  V^2 + EV  – stupid is_undirected() + Graph_W(v_num)
+        //  E * log E – std::sort()
         Graph_W kruskal();
 
 };
