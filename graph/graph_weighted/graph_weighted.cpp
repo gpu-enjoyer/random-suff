@@ -133,9 +133,14 @@ void Graph_W::demo_undirected(const string& name = "") {
 }
 
 
-// bool Graph_W::is_non_negative() const {
-//     ;
-// }
+// O(E)
+bool Graph_W::is_non_negative() const {
+    for (const vec<Edge>& vec_e : adj_list)
+        for (const Edge& e : vec_e)
+            if (e.cost < 0)
+                return false;
+    return true;
+}
 
 // O(V + V*(V+V/2*(E/V)))
 //  = O(V^2 + EV)
@@ -171,6 +176,11 @@ bool Graph_W::is_undirected() const {
 
 //* O(V + E * log E) amort.
 void Graph_W::dijkstra(T_dijkstra& t, const int start) {
+
+    // O(E)
+    if (!is_non_negative())
+        throw("Graph_W \"" + name + "\"" + " contains negative weights. \n"
+            + "dijkstra() did not execute \n");
 
     // Pair {dist, vertex}
     priority_queue<Pair, vec<Pair>, greater<Pair>> pq;
@@ -242,7 +252,8 @@ void Graph_W::dijkstra(T_dijkstra& t) {
 Graph_W Graph_W::prim(const int start) {
 
     if (!is_undirected())
-        throw("Graph_W \"" + name + "\"" + "is directed. prim() did not execute");
+        throw("Graph_W \"" + name + "\"" + "is directed. \n"
+            + "prim() did not execute \n");
 
     priority_queue<Edge, vec<Edge>, Edge_greater> pq;
     Graph_W   tree(adj_list.size(), name + " -> prim(" + to_string(start) +")");
@@ -299,7 +310,8 @@ bool Edge_greater::operator() (const Edge& e, const Edge& ee) const {
 Graph_W Graph_W::kruskal() {
 
     if (!is_undirected())
-        throw("Graph_W \"" + name + "\"" + "is directed. kruskal() did not execute");
+        throw("Graph_W \"" + name + "\"" + "is directed. \n"
+            + "kruskal() did not execute \n");
 
     Graph_W   tree(adj_list.size(), name + " -> kruskal()");
     T_kruskal t(adj_list.size());
