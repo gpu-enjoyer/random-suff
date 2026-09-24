@@ -14,18 +14,19 @@
 
 ## Roadmap
 
-- [x] Graph
+- [x] class Graph
 - [x] bfs: bfs
 - [x] bfs: dist
 - [x] topsort: dfs
 - [x] topsort: in + out
 - [x] topsort: cycles
 - [x] topsort: topsort
-- [x] Graph_W
+- [x] class Graph_W
 - [x] dijkstra
 - [x] prim
 - [x] kruskal
 - [ ] comments: complexity
-- [ ] \* merge: Graph_W + Graph
-- [ ] \* adj_list / adj_matrix depending on cases
-- [ ] \* consider: using dictionaries in some cases
+- [ ] \* Graph_W algorithms: cool operator<< 
+- [ ] \* merge: Graph + Graph_W
+- [ ] \* consider: dictionaries in some cases
+- [ ] \* consider: adj_matrix in some cases
