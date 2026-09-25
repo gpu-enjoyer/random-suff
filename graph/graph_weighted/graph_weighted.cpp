@@ -43,7 +43,7 @@ T_kruskal::T_kruskal(const int v_num) { // O(V)
     edges.clear();
     parent.assign(v_num, v0);
 }
-void T_kruskal::reset(const vec<vec<Edge>>& adj_list) { // O(E * log E)
+void T_kruskal::reset(const vec<vec<Edge>>& adj_list) { // O(V + E * log E)
     for (int i = 0; i < adj_list.size(); ++i) // O(V)
         parent[i] = i;
     for (const vec<Edge>& vec_e : adj_list) // O(E)
@@ -56,7 +56,9 @@ int T_kruskal::find(const int v) { // O(1) amort.
     // Path compression: p[v] = f(pp[v]) = ff(ppp[v]) = ... = v
     return parent[v] == v ? v : parent[v] = find(parent[v]);
 }
-bool T_kruskal::attach(const Edge& e) { // O(1) amort.
+
+// todo
+bool T_kruskal::attach(const Edge& e) { //? O(1) amort.
     if (find(e.from) != find(e.to)) {
         parent[find(e.from)] = find(e.to);
         return true;
@@ -249,13 +251,20 @@ void Graph_W::dijkstra(T_dijkstra& t) {
 
 // Growing a tree.
 //  Traverses only one connected component.
+//   O(V^2 + E * log E + E * log E) =
+//    O(V^2 + E * log E)
+//     - Graph_W tree(v_num)  -> O(V^2)
+//     - pq.top() + pq.push() -> O(E * log E)
 Graph_W Graph_W::prim(const int start) {
 
-    if (!is_undirected())
-        throw("Graph_W \"" + name + "\"" + " is directed. \n"
-            + "prim() did not execute \n");
+    // // O(V^2 + EV)
+    // if (!is_undirected())
+    //     throw("Graph_W \"" + name + "\"" + " is directed. \n"
+    //         + "prim() did not execute \n");
 
     priority_queue<Edge, vec<Edge>, Edge_greater> pq;
+
+    // O(V^2)
     Graph_W   tree(adj_list.size(), name + " -> prim(" + to_string(start) +")");
     vec<bool> in_tree(adj_list.size(), false);
     int       e_num = 0;
@@ -264,36 +273,40 @@ Graph_W Graph_W::prim(const int start) {
     for (const Edge& e : adj_list[start])
         pq.push(e);
 
-    while(!pq.empty()) {
+    while(!pq.empty()) // Σ ≤ E 
+    {
         if (e_num >= in_tree.size() - 1)
             break;
-        Edge e = pq.top(); pq.pop();
+
+        Edge e = pq.top(); pq.pop(); // O(log E)
 
         // В одной из предыдущих итераций "while()"
         //  извлеченное ребро называелось "e".
         // 
-        // Тогда же вершина (1) "e.to" была добавлена в
-        //  дерево: "in_tree[e.to] = true".
+        // Тогда же вершина "e.to" (1) была добавлена в
+        //  дерево: "tree.add_ue(e); in_tree[e.to] = true".
         //   Затем все ребра (1)->(2), соединяющие с
         //    потенциальными новыми вершинами, отправились
         //     в очередь: "pq.push(ee)".
         // 
         // Сейчас очередное ребро "e", извлеченное из очереди,
-        //  соединяет вершины (1) "e.from" -> (2) "e.to".
+        //  соединяет вершины "e.from" (1) -> "e.to" (2).
         // 
-        // Значит, теперь "in_tree[e.from] == true".
+        // Значит, теперь гарантировано "in_tree[e.from] == true".
         //  Как и в любой другой итерации: по индукции,
         //   начиная со "start".
 
         if (in_tree[e.to])
-            continue;
-        else {
+            continue; // *
+        else
+        {
             e_num += 1;
             tree.add_ue(e);
-            in_tree[e.to] = true;
-            for (Edge ee : adj_list[e.to])
+            in_tree[e.to] = true; // *
+
+            for (Edge ee : adj_list[e.to]) //* Σ ≤ E
                 if (!in_tree[ee.to])
-                    pq.push(ee);
+                    pq.push(ee);       // O(log E)
         }
     }
 
@@ -305,18 +318,20 @@ bool Edge_greater::operator() (const Edge& e, const Edge& ee) const {
 }
 
 
+// todo: optimize t.attach
+
 // Growing a forest.
 //  Capable of traversing a disconnected graph.
-//   O(V^2 + EV + E * log E) = O(V^2 + EV)
-//    V^2 + EV  – stupid is_undirected() + Graph_W(v_num)
-//    E * log E – std::sort()
+//   O(V^2 + E * log E)
+//    - Graph_W tree(v_num) -> O(V^2)
+//    - std::sort(t.edges)  -> O(E * log E)
 Graph_W Graph_W::kruskal() {
 
-    // O(V^2 + EV)
-    if (!is_undirected())
-        throw(
-            "Graph_W \"" + name + "\"" + " is directed. \n"
-            + "kruskal() did not execute \n");
+    // // O(V^2 + EV)
+    // if (!is_undirected())
+    //     throw(
+    //         "Graph_W \"" + name + "\"" + " is directed. \n"
+    //         + "kruskal() did not execute \n");
 
     // O(V^2)
     Graph_W   tree(adj_list.size(), name + " -> kruskal()");

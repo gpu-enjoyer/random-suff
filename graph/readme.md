@@ -24,8 +24,8 @@
 - [x] class Graph_W
 - [x] dijkstra
 - [x] prim
-- [x] kruskal
-- [ ] comments: complexity
+- [ ] kruskal
+- [x] comments: complexity
 - [ ] \* Graph_W algorithms: cool operator<< 
 - [ ] \* merge: Graph + Graph_W
 - [ ] \* consider: dictionaries in some cases

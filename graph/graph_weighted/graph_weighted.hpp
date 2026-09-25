@@ -49,7 +49,7 @@ struct T_kruskal {
     vec<Edge> edges;
     vec<int>  parent;
     T_kruskal(const int v_num);                 // O(V)
-    void reset(const vec<vec<Edge>>& adj_list); // O(E * log E)
+    void reset(const vec<vec<Edge>>& adj_list); // O(V + E * log E)
     int  find(const int v);                     // O(1) amort.
     bool attach(const Edge& e);                 // O(1) amort.
 };
@@ -84,17 +84,22 @@ class Graph_W {
         void add_ue(const Edge& e);
         void demo_undirected(const string& name);
 
-        bool is_non_negative() const;
-        bool is_undirected() const; // O(V^2 + EV)
+        bool is_non_negative() const; // O(E)
+        bool is_undirected() const;   // O(V^2 + EV)
 
-        void dijkstra(T_dijkstra& t, const int start); // O(V + E*log E) amort.
-        void dijkstra(T_dijkstra& t);  // O(V^2 + V*E*log E) amort.
+        // O(V + E*log E) amort.
+        void dijkstra(T_dijkstra& t, const int start);
+        // O(V^2 + V*E*log E) amort.
+        void dijkstra(T_dijkstra& t);
 
+        // O(V^2 + E * log E)
+        //  - Graph_W tree(v_num)      -> O(V^2)
+        //  - { pq.top() + pq.push() } -> O(E * log E)
         Graph_W prim(const int start);
 
-        // O(V^2 + EV)
-        //  V^2 + EV  – stupid is_undirected() + Graph_W(v_num)
-        //  E * log E – std::sort()
+        // O(V^2 + E * log E)
+        //  - Graph_W(v_num)           -> O(V^2)
+        //  - t.reset { std::sort() }  -> O(E * log E)
         Graph_W kruskal();
 
 };
