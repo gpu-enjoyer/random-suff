@@ -39,11 +39,10 @@ ostream& operator<<(ostream& os, const T_dijkstra& t) {
 bool edge_shorter(const Edge& e, const Edge& ee) {
     return e.cost < ee.cost;
 }
-T_kruskal::T_kruskal(const int v_num) { // O(V)
+T_kruskal::T_kruskal(const vec<vec<Edge>>& adj_list) { // O(V + E * log E)
     edges.clear();
-    parent.assign(v_num, v0);
-}
-void T_kruskal::reset(const vec<vec<Edge>>& adj_list) { // O(V + E * log E)
+    parent.assign(adj_list.size(), v0);
+    sz.assign(adj_list.size(), 1);
     for (int i = 0; i < adj_list.size(); ++i) // O(V)
         parent[i] = i;
     for (const vec<Edge>& vec_e : adj_list) // O(E)
@@ -56,14 +55,16 @@ int T_kruskal::find(const int v) { // O(1) amort.
     // Path compression: p[v] = f(pp[v]) = ff(ppp[v]) = ... = v
     return parent[v] == v ? v : parent[v] = find(parent[v]);
 }
-
-// todo
-bool T_kruskal::attach(const Edge& e) { //? O(1) amort.
-    if (find(e.from) != find(e.to)) {
-        parent[find(e.from)] = find(e.to);
-        return true;
-    }
-    return false;
+bool T_kruskal::attach(const Edge& e) { // O(1) amort.
+    int a = find(e.from);
+    int b = find(e.to);
+    if (a == b)
+        return false;
+    if (sz[a] < sz[b])
+        swap(a, b);
+    parent[b] = a;
+    sz[a] += sz[b];
+    return true;
 }
 
 
@@ -318,13 +319,11 @@ bool Edge_greater::operator() (const Edge& e, const Edge& ee) const {
 }
 
 
-// todo: optimize t.attach
-
 // Growing a forest.
 //  Capable of traversing a disconnected graph.
 //   O(V^2 + E * log E)
-//    - Graph_W tree(v_num) -> O(V^2)
-//    - std::sort(t.edges)  -> O(E * log E)
+//    - Graph_W tree(v_num)   -> O(V^2)
+//    - T_kruskal t(adj_list) -> O(V + E * log E)
 Graph_W Graph_W::kruskal() {
 
     // // O(V^2 + EV)
@@ -336,12 +335,9 @@ Graph_W Graph_W::kruskal() {
     // O(V^2)
     Graph_W   tree(adj_list.size(), name + " -> kruskal()");
 
-    // O(V)
-    T_kruskal t(adj_list.size());
+    // O(V + E * log E)
+    T_kruskal t(adj_list);
 
-    // O(E * log E)
-    t.reset(adj_list);
-    
     // O(E)
     for (int i = 0; i < t.edges.size(); ++i) {
         if(t.attach(t.edges[i]))

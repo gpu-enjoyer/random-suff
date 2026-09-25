@@ -13,7 +13,6 @@ using Pair = pair<int, int>; // dijkstra
 
 
 // Edges
-
 struct Edge {
     int from, to, cost;
     Edge()
@@ -30,7 +29,6 @@ bool edge_shorter(const Edge& e, const Edge& ee);
 
 
 // Traversal for Dijkstra's algorithm
-
 struct T_dijkstra {
     static constexpr int inf = INT_MAX;
     vec<vec<int>> dist;
@@ -43,20 +41,18 @@ ostream& operator<<(ostream& os, const T_dijkstra& t);
 
 
 // Traversal for Kruskal's algorithm
-
 struct T_kruskal {
     static constexpr int v0 = -1;
     vec<Edge> edges;
     vec<int>  parent;
-    T_kruskal(const int v_num);                 // O(V)
-    void reset(const vec<vec<Edge>>& adj_list); // O(V + E * log E)
+    vec<int>  sz;
+    T_kruskal(const vec<vec<Edge>>& adj_list);  // O(V + E * log E)
     int  find(const int v);                     // O(1) amort.
     bool attach(const Edge& e);                 // O(1) amort.
 };
 
 
 // Directed weighted graph
-
 class Graph_W {
 
     private:

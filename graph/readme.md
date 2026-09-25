@@ -15,16 +15,16 @@
 ## Roadmap
 
 - [x] class Graph
-- [x] bfs: bfs
-- [x] bfs: dist
-- [x] topsort: dfs
-- [x] topsort: in + out
-- [x] topsort: cycles
-- [x] topsort: topsort
+- [x] bfs() bfs
+- [x] bfs() dist
+- [x] topsort() dfs
+- [x] topsort() in + out
+- [x] topsort() cycles
+- [x] topsort() topsort
 - [x] class Graph_W
-- [x] dijkstra
-- [x] prim
-- [ ] kruskal
+- [x] dijkstra()
+- [x] prim()
+- [x] kruskal()
 - [x] comments: complexity
 - [ ] \* Graph_W algorithms: cool operator<< 
 - [ ] \* merge: Graph + Graph_W
