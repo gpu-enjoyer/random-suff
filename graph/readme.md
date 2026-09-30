@@ -26,6 +26,7 @@
 - [x] prim()
 - [x] kruskal()
 - [x] comments: complexity
+- [ ] Graph_W::rm_e(const Edge& e): handle index invalidation after removal
 - [ ] \* Graph_W algorithms: cool operator<< 
 - [ ] \* merge: Graph + Graph_W
 - [ ] \* consider: dictionaries in some cases
