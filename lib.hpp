@@ -9,7 +9,7 @@ using namespace std;
 using namespace chrono;
 
 
-template <typename T>
+template <class T>
 bool check(
     const vector<T>& a)
 {
@@ -19,15 +19,15 @@ bool check(
 }
 
 
-template <typename T>
+template <class T>
 void gen_rand(
     vector<T>& a,
-    size_t size,
-    size_t range)
+    size_t size = 10,
+    size_t range = 10)
 {
     static_assert(
         std::is_same_v<T, int> || std::is_same_v<T, size_t>,
-        "T must be int or size_t"
+        "<T> must be int or size_t"
     );
 
     static std::mt19937 mt(time(nullptr));
@@ -42,22 +42,11 @@ void gen_rand(
             a[i] = 2 * int(mt() % range) - int(range);
 }
 
-template <typename T>
-void gen_rand(
-    vector<T>& a,
-    size_t size)
-{
-    mt19937 mt(time(nullptr));
-    a.resize(size);
-    for (size_t i = 0; i < a.size(); ++i)
-		a[i] = mt();
-}
-
 
 void gen_rand_unique(
-    std::vector<unsigned long>& a,
+    vector<unsigned long>& a,
     size_t size,
-    size_t range)
+    size_t range = 10)
 {
     if (range <= size)
         throw std::runtime_error("Range is too small");
@@ -71,8 +60,26 @@ void gen_rand_unique(
 }
 
 
+void gen_str(
+    vector<string>& a,
+    size_t size)
+{
+    a.resize(size);
+    static mt19937 mt(time(nullptr));
 
-template <typename T>
+    static const string alphabet =
+        "0123456789"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    for (size_t i = 0; i < a.size(); ++i) {
+        a[i].resize(mt() % 3 + 1);
+        for (size_t j = 0; j < a[i].size(); ++j)
+            a[i][j] = alphabet[mt() % alphabet.size()];
+    }
+}
+
+
+template <class T>
 ostream& operator<<(
     ostream& os,
     const vector<T>& a)
@@ -84,13 +91,13 @@ ostream& operator<<(
 
 
 template <
-    typename  SortFunc,
-    typename  T,
-    typename... Args
+    class  SortFunc,
+    class  T,
+    class... Args
 >
 double get_time(
     SortFunc   sort_func,
-    vector<T>  a,
+    vector<T>& a,
     Args...    args)
 {
 	auto time0 = steady_clock::now();

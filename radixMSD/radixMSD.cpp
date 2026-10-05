@@ -1,6 +1,7 @@
 
+#include <algorithm>
 #include <iostream>
-#include "lib.hpp"
+#include "../lib.hpp"
 
 using namespace std;
 
@@ -66,21 +67,31 @@ bool radixMSD(
 }
 
 
+bool stdSort(
+    vector<string>& a)
+{
+    sort(a.begin(), a.end());
+    return check(a);
+}
+
+
 int main()
 {
     vector<string> a, b;
 
-    gen_strings(a, 10000);
+    gen_str(a, 20);
     b.resize(a.size());
     b = a;
 
-    double t_std = get_time(stdSort,   a);
-    double t     = get_time(radixMSD, b);
-
     cout << b << "\n\n";
+
+    double t_std = get_time(stdSort,  a);
+    double t     = get_time(radixMSD, b);
 
     cout << "t_std = " << t_std << "\n";
     cout << "t     = " << t     << "\n\n";
+
+    cout << b << "\n\n";
 
     return 0;
 }
