@@ -47,12 +47,13 @@ public:
             return max(min(A.x, B.x), min(S.A.x, S.B.x)) <= min(max(A.x, B.x), max(S.A.x, S.B.x))
                 && max(min(A.y, B.y), min(S.A.y, S.B.y)) <= min(max(A.y, B.y), max(S.A.y, S.B.y));
 
+        if (!((side_SA < 0) == (side_SB > 0) || side_SA == 0 || side_SB == 0))
+            return false;
+
         side_A = S.side(A);
         side_B = S.side(B);
 
-        //  S_x_line_AB  &&  AB_x_line_S
-        return ((side_SA < 0) == (side_SB > 0) || side_SA == 0 || side_SB == 0)
-            && ((side_A < 0)  == (side_B > 0)  || side_A == 0  || side_B == 0);
+        return (side_A < 0) == (side_B > 0) || side_A == 0 || side_B == 0;
     }
 
     friend ostream& operator<<(ostream&, const Segment&);
