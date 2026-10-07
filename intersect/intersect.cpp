@@ -9,14 +9,12 @@ using namespace std;
 struct Point {
     int x = rand() % mod;
     int y = rand() % mod;
-    static constexpr int mod = 100;
+    static constexpr int mod = 10;
     Point(const int x, const int y) : x(x), y(y) {};
     Point() = default;
 };
 
 class Segment {
-
-private:
 
     Point A, B;
 
@@ -25,11 +23,11 @@ public:
     Segment(const Point& A, const Point& B) : A(A), B(B) {};
     Segment() = default;
 
-    inline int x() const { return B.x - A.x; }
-    inline int y() const { return B.y - A.y; }
+    inline int dx() const { return B.x - A.x; }
+    inline int dy() const { return B.y - A.y; }
 
     inline long vec_prod(const Segment& S) const {
-        return x() * S.y() - y() * S.x();
+        return dx() * S.dy() - dy() * S.dx();
     }
 
     inline long side(const Point& P) const {
@@ -37,45 +35,48 @@ public:
     }
 
     bool intersect(const Segment& S) const {
-        const long side_S_A = side(S.A);
-        const long S_side_A = S.side(A);
-        return
-            ((side_S_A > 0) != (side(S.B) > 0))
-                && ((S_side_A > 0) != (S.side(B) > 0))
-            || side_S_A == 0
-                && min(A.x, B.x) <= S.A.x && S.A.x <= max(A.x, B.x)
-                && min(A.y, B.y) <= S.A.y && S.A.y <= max(A.y, B.y)
-            || S_side_A == 0
-                && min(S.A.x, S.B.x) <= A.x && A.x <= max(S.A.x, S.B.x)
-                && min(S.A.y, S.B.y) <= A.y && A.y <= max(S.A.y, S.B.y);
+
+        long side_SA, side_SB, side_A, side_B;
+    
+        side_SA = side(S.A);
+        side_SB = side(S.B);
+
+        //  Collinear
+        if (side_SA == 0 && side_SB == 0)
+            //  [  [  ]  ]
+            return max(min(A.x, B.x), min(S.A.x, S.B.x)) <= min(max(A.x, B.x), max(S.A.x, S.B.x))
+                && max(min(A.y, B.y), min(S.A.y, S.B.y)) <= min(max(A.y, B.y), max(S.A.y, S.B.y));
+
+        side_A = S.side(A);
+        side_B = S.side(B);
+
+        //  S_x_line_AB  &&  AB_x_line_S
+        return ((side_SA < 0) == (side_SB > 0) || side_SA == 0 || side_SB == 0)
+            && ((side_A < 0)  == (side_B > 0)  || side_A == 0  || side_B == 0);
     }
 
     friend ostream& operator<<(ostream&, const Segment&);
 };
 
 ostream& operator<<(ostream& os, const Segment& S) {
-    return os
-        << "A(" << S.A.x << ", " << S.A.y << ") "
-        << "B(" << S.B.x << ", " << S.B.y << ") "
-        << "vec(" << S.x() << ", " << S.y() << ")\n";
+    return os << "A(" << S.A.x << "," << S.A.y << ")->B(" << S.B.x << "," << S.B.y << ")";
 }
 
-
-enum class Event {
-    begin,
-    intersection,
-    end
-};
 
 // TODO: Bentley-Ottmann()
 
 
-int main() {
+int main()
+{
+    srand(time(nullptr));
 
-    vector<Segment> vS(10);
+    vector<Segment> vS(3);
 
-    for (Segment s : vS)
-        cout << s;
+    for (const Segment& s : vS)
+        for (const Segment& ss : vS)
+            cout << s << " cross " << ss << ": "
+                << (s.intersect(ss) ? "true" : "false") << '\n';
+
     cout << '\n';
 
     return 0;
