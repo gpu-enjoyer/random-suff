@@ -1,18 +1,77 @@
 
 #include <vector>
-#include <cstdlib>
 #include <iostream>
+#include <numeric>  // gcd(), lcm()
+#include <cstdlib>  // rand(), srand()
+#include <ctime>    // time()
 
 using namespace std;
 
 
+struct Rat {
+
+    int p = 0;
+    int q = 1;
+
+    Rat() = default;
+
+    Rat(long pp, long qq = 1) {
+        if (qq == 0)
+            throw invalid_argument("qq == 0");
+        if (qq < 0) {
+            pp = -pp;
+            qq = -qq;
+        }
+        norm(pp, qq);
+        p = (int)pp;
+        q = (int)qq;
+    }
+
+    void norm(long& pp, long& qq) {
+        long d = gcd(pp, qq);
+        pp /= d;
+        qq /= d;
+    }
+
+    Rat operator+(const Rat& R) const {
+        long m = lcm((long)q, (long)R.q);
+        return Rat(p * (m / q) + R.p * (m / R.q), m);
+    }
+    Rat operator-(const Rat& R) const {
+        long m = lcm((long)q, (long)R.q);
+        return Rat(p * (m / q) - R.p * (m / R.q), m);
+    }
+    Rat operator*(const Rat& R) const {
+        return Rat((long)p * R.p, (long)q * R.q);
+    }
+    Rat operator/(const Rat& R) const {
+        return Rat((long)p * R.q, (long)q * R.p);
+    }
+
+    bool operator==(const Rat& R) const { return p == R.p && q == R.q; }
+    bool operator> (const Rat& R) const { return (long)p * R.q > (long)R.p * q; }
+    bool operator!=(const Rat& R) const { return !(*this == R); }
+    bool operator< (const Rat& R) const { return R > *this; }
+    bool operator>=(const Rat& R) const { return !(R > *this); }
+    bool operator<=(const Rat& R) const { return !(*this > R); }
+
+    friend ostream& operator<<(ostream&, const Rat&);
+};
+
+ostream& operator<<(ostream& os, const Rat& R) {
+    if (R.q == 1) return os << R.p;
+    return os << R.p << "/" << R.q;
+}
+
+
 struct Point {
-    int x = rand() % mod;
-    int y = rand() % mod;
+    Rat x = rand() % mod;
+    Rat y = rand() % mod;
     static constexpr int mod = 10;
     Point(const int x, const int y) : x(x), y(y) {};
     Point() = default;
 };
+
 
 class Segment {
 
@@ -23,20 +82,20 @@ public:
     Segment(const Point& A, const Point& B) : A(A), B(B) {};
     Segment() = default;
 
-    inline int dx() const { return B.x - A.x; }
-    inline int dy() const { return B.y - A.y; }
+    Rat dx() const { return B.x - A.x; }
+    Rat dy() const { return B.y - A.y; }
 
-    inline long vec_prod(const Segment& S) const {
+    Rat vec_prod(const Segment& S) const {
         return dx() * S.dy() - dy() * S.dx();
     }
 
-    inline long side(const Point& P) const {
+    Rat side(const Point& P) const {
         return this->vec_prod(Segment(A, P));
     }
 
-    bool intersect(const Segment& S) const {
+    bool has_intersection(const Segment& S) const {
 
-        long side_SA, side_SB, side_A, side_B;
+        Rat side_SA, side_SB, side_A, side_B;
     
         side_SA = side(S.A);
         side_SB = side(S.B);
@@ -67,8 +126,8 @@ ostream& operator<<(ostream& os, const Segment& S) {
 // TODO: Bentley-Ottmann()
 
 
-int main()
-{
+int main() {
+
     srand(time(nullptr));
 
     vector<Segment> vS(3);
@@ -76,7 +135,7 @@ int main()
     for (const Segment& s : vS)
         for (const Segment& ss : vS)
             cout << s << " cross " << ss << ": "
-                << (s.intersect(ss) ? "true" : "false") << '\n';
+                << (s.has_intersection(ss) ? "true" : "false") << '\n';
 
     cout << '\n';
 
