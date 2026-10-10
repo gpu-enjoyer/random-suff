@@ -72,24 +72,25 @@ struct Point {
     static constexpr int mod = 10;
     Point(const Rat x, const Rat y) : x(x), y(y) {};
     Point() = default;
-};
-
-Point left(const Point& A, const Point& B) {
-    if (A.x <= B.x)
-        return A;
-    return B;
-};
-
-Point right(const Point& A, const Point& B) {
-    if (A.x >= B.x)
-        return A;
-    return B;
+    bool operator==(const Point& P) const { return x == P.x && y == P.y; }
 };
 
 
 class Segment {
 
     Point A, B;
+
+    Point l_(const Point& P1, const Point& P2) const {
+        if (P1.x != P2.x)
+            return P1.x < P2.x ? P1 : P2;
+        return P1.y <= P2.y ? P1 : P2;
+    }
+
+    Point r_(const Point& P1, const Point& P2) const {
+        if (P1.x != P2.x)
+            return P1.x > P2.x ? P1 : P2;
+        return P1.y >= P2.y ? P1 : P2;
+    }
 
 public:
 
@@ -109,31 +110,99 @@ public:
 
     optional<Point> intersection(const Segment& S) const {
 
+        // AB x S
         Rat vp = vec_prod(S);
 
-        if (vp == 0) { // Collinear
-            if (side(S.A) == 0) { // On one line
-                Point right_start = right(left(A, B), left(S.A, S.B));
-                Point    left_end = left(right(A, B), right(S.A, S.B));
-                if (right_start.x < left_end.x)
-                    throw invalid_argument("Segments overlapping");
-                if (right_start.x == left_end.x)
-                    return right_start;
+        // (1) At least one Segment is Point or
+        //  (2) Collinear
+        if (vp == 0)
+        {
+            // 2 Segments is 2 Points
+            if (A == B && S.A == S.B)
+            {
+                // Same Points
+                if (A == S.A)
+                    return A;
+
+                // Different Points
+                return nullopt;
             }
+
+            // Only AB is Point (S.A != S.B)
+            if (A == B)
+            {
+                // Point and Segment are not on one line
+                if (S.side(A) != 0)
+                    return nullopt;
+                
+                // else: (2) Collinear
+            }
+
+            // Only S is Point (A != B)
+            if (S.A == S.B)
+            {
+                // Point and Segment are not on one line
+                if (side(S.A) != 0)
+                    return nullopt;
+                
+                // else: (2) Collinear
+            }
+
+            // (2) Collinear
+
+            // On same line: AB x AP
+            if (side(S.A) == 0)
+            {
+                //  [-[-]-]  vs  [-] [-]
+                Point max_start = r_(l_(A, B), l_(S.A, S.B));
+                Point   min_end = l_(r_(A, B), r_(S.A, S.B));
+
+                // Vertical segments
+                if (A.x == B.x && S.A.x == S.B.x)
+                {
+                    // Y: [-[-]-]
+                    if (max_start.y < min_end.y)
+                        throw invalid_argument("Segments overlapping");
+
+                    // Y: [-][-]
+                    if (max_start.y == min_end.y)
+                        return max_start;
+                }
+
+                // Not vertical segments
+                else
+                {
+                    // X_proj: [-[-]-]
+                    if (max_start.x < min_end.x)
+                        throw invalid_argument("Segments overlapping");
+
+                    // X_proj: [-][-]
+                    if (max_start.x == min_end.x)
+                        return max_start;
+                }
+            }
+
+            // Not on same line
             return nullopt;
         }
 
+        // Not collinear and no Points
+
+        // r == Segment(S.A, P) / S
         Rat r = (dy() * (S.A.x - A.x) - dx() * (S.A.y - A.y)) / vp;
 
+        // P not belongs to S
         if (r < 0 || r > 1)
             return nullopt;
 
         Point P(S.A.x + r * S.dx(), S.A.y + r * S.dy());
 
+        // P not belongs to AB
         if (P.x < min(A.x, B.x) || P.x > max(A.x, B.x) ||
             P.y < min(A.y, B.y) || P.y > max(A.y, B.y))
             return nullopt;
 
+        // P belongs to S and AB
         return P;
     }
 
