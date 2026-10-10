@@ -1,4 +1,6 @@
 
+#include <optional>
+#include <stdexcept>
 #include <vector>
 #include <iostream>
 #include <numeric>  // gcd(), lcm()
@@ -68,8 +70,20 @@ struct Point {
     Rat x = rand() % mod;
     Rat y = rand() % mod;
     static constexpr int mod = 10;
-    Point(const int x, const int y) : x(x), y(y) {};
+    Point(const Rat x, const Rat y) : x(x), y(y) {};
     Point() = default;
+};
+
+Point left(const Point& A, const Point& B) {
+    if (A.x <= B.x)
+        return A;
+    return B;
+};
+
+Point right(const Point& A, const Point& B) {
+    if (A.x >= B.x)
+        return A;
+    return B;
 };
 
 
@@ -93,26 +107,34 @@ public:
         return this->vec_prod(Segment(A, P));
     }
 
-    bool has_intersection(const Segment& S) const {
+    optional<Point> intersection(const Segment& S) const {
 
-        Rat side_SA, side_SB, side_A, side_B;
-    
-        side_SA = side(S.A);
-        side_SB = side(S.B);
+        Rat vp = vec_prod(S);
 
-        //  Collinear
-        if (side_SA == 0 && side_SB == 0)
-            //  [  [  ]  ]
-            return max(min(A.x, B.x), min(S.A.x, S.B.x)) <= min(max(A.x, B.x), max(S.A.x, S.B.x))
-                && max(min(A.y, B.y), min(S.A.y, S.B.y)) <= min(max(A.y, B.y), max(S.A.y, S.B.y));
+        if (vp == 0) { // Collinear
+            if (side(S.A) == 0) { // On one line
+                Point right_start = right(left(A, B), left(S.A, S.B));
+                Point    left_end = left(right(A, B), right(S.A, S.B));
+                if (right_start.x < left_end.x)
+                    throw invalid_argument("Segments overlapping");
+                if (right_start.x == left_end.x)
+                    return right_start;
+            }
+            return nullopt;
+        }
 
-        if (!((side_SA < 0) == (side_SB > 0) || side_SA == 0 || side_SB == 0))
-            return false;
+        Rat r = (dy() * (S.A.x - A.x) - dx() * (S.A.y - A.y)) / vp;
 
-        side_A = S.side(A);
-        side_B = S.side(B);
+        if (r < 0 || r > 1)
+            return nullopt;
 
-        return (side_A < 0) == (side_B > 0) || side_A == 0 || side_B == 0;
+        Point P(S.A.x + r * S.dx(), S.A.y + r * S.dy());
+
+        if (P.x < min(A.x, B.x) || P.x > max(A.x, B.x) ||
+            P.y < min(A.y, B.y) || P.y > max(A.y, B.y))
+            return nullopt;
+
+        return P;
     }
 
     friend ostream& operator<<(ostream&, const Segment&);
@@ -128,16 +150,16 @@ ostream& operator<<(ostream& os, const Segment& S) {
 
 int main() {
 
-    srand(time(nullptr));
+    // srand(time(nullptr));
 
-    vector<Segment> vS(3);
+    // vector<Segment> vS(3);
 
-    for (const Segment& s : vS)
-        for (const Segment& ss : vS)
-            cout << s << " cross " << ss << ": "
-                << (s.has_intersection(ss) ? "true" : "false") << '\n';
+    // for (const Segment& s : vS)
+    //     for (const Segment& ss : vS)
+    //         cout << s << " cross " << ss << ": "
+    //             << (s.has_intersection(ss) ? "true" : "false") << '\n';
 
-    cout << '\n';
+    // cout << '\n';
 
     return 0;
 }
