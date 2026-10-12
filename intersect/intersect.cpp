@@ -1,11 +1,8 @@
 
-#include <optional>
-#include <stdexcept>
 #include <vector>
 #include <iostream>
 #include <numeric>  // gcd(), lcm()
-#include <cstdlib>  // rand(), srand()
-#include <ctime>    // time()
+#include <optional> // optional<Point> intersection()
 
 using namespace std;
 
@@ -61,19 +58,24 @@ struct Rat {
 };
 
 ostream& operator<<(ostream& os, const Rat& R) {
-    if (R.q == 1) return os << R.p;
-    return os << R.p << "/" << R.q;
+    if (R.q == 1)
+        return os << R.p;
+    int n = R.p / R.q;
+    return os << n << "+" << R.p - n * R.q << "/" << R.q;
 }
 
 
 struct Point {
-    Rat x = rand() % mod;
-    Rat y = rand() % mod;
-    static constexpr int mod = 10;
+    Rat x = 0;
+    Rat y = 0;
     Point(const Rat x, const Rat y) : x(x), y(y) {};
     Point() = default;
     bool operator==(const Point& P) const { return x == P.x && y == P.y; }
 };
+
+ostream& operator<<(ostream& os, const Point& P) {
+    return os << "(" << P.x << "," << P.y << ")";
+}
 
 
 class Segment {
@@ -96,6 +98,10 @@ public:
 
     Segment(const Point& A, const Point& B) : A(A), B(B) {};
     Segment() = default;
+
+    bool operator==(const Segment& S) const {
+        return A == S.A && B == S.B || A == S.B && B == S.A;
+    }
 
     Rat dx() const { return B.x - A.x; }
     Rat dy() const { return B.y - A.y; }
@@ -162,6 +168,7 @@ public:
                 {
                     // Y: [-[-]-]
                     if (max_start.y < min_end.y)
+                        // Bentley-Ottmann' invariant
                         throw invalid_argument("Segments overlapping");
 
                     // Y: [-][-]
@@ -174,6 +181,7 @@ public:
                 {
                     // X_proj: [-[-]-]
                     if (max_start.x < min_end.x)
+                        // Bentley-Ottmann' invariant
                         throw invalid_argument("Segments overlapping");
 
                     // X_proj: [-][-]
@@ -210,25 +218,70 @@ public:
 };
 
 ostream& operator<<(ostream& os, const Segment& S) {
-    return os << "A(" << S.A.x << "," << S.A.y << ")->B(" << S.B.x << "," << S.B.y << ")";
+    return os << S.A << "->" << S.B;
+}
+
+vector<Segment> demo() {
+    vector<Segment> vS;
+    vS.reserve(11);
+    vS.push_back(Segment(Point( 3,  0), Point(21, 27))); // 0
+    vS.push_back(Segment(Point(18,  0), Point( 3, 30))); // 1
+    vS.push_back(Segment(Point( 3,  3), Point(23, 15))); // 2
+    vS.push_back(Segment(Point(15,  3), Point(15, 21))); // 3
+    vS.push_back(Segment(Point( 3,  8), Point( 9, 13))); // 4
+    vS.push_back(Segment(Point( 6,  8), Point( 6,  8))); // 5
+    vS.push_back(Segment(Point(11, 19), Point(13, 21))); // 6
+    vS.push_back(Segment(Point(13, 19), Point(11, 21))); // 7
+    vS.push_back(Segment(Point( 4, 23), Point(22, 23))); // 8
+    vS.push_back(Segment(Point(22, 23), Point(17, 32))); // 9
+    vS.push_back(Segment(Point( 5, 26), Point(17, 32))); // 10
+    return vS;
 }
 
 
-// TODO: Bentley-Ottmann()
+void find_intersections_bruteforce(const vector<Segment>& vS) {
+
+    int count = 0;
+
+    cout << "find_intersections_bruteforce() \n\n";
+
+    for (int i = 0; i < vS.size(); ++i)
+        cout << i << ". " << vS[i] << '\n';
+    cout << '\n';
+
+    for (int i = 0; i < vS.size(); ++i)
+        for (int j = i + 1; j < vS.size(); ++j) {
+            optional<Point> p = vS[i].intersection(vS[j]);
+            if (p) {
+                cout << i << " x " << j << " = " << p.value() << '\n';
+                ++count;
+            }
+        }
+    cout << '\n';
+
+    cout << "Found " << count << " intersections \n\n";
+}
+
+
+enum class Kind { Begin, End, Intersection };
+
+struct Event {
+    Point P;
+    Kind  kind;
+    size_t i, j;
+};
+
+// Bentley-Ottmann
+void find_intersections(const vector<Segment>& vS);
 
 
 int main() {
 
-    // srand(time(nullptr));
+    vector<Segment> vS = demo();
 
-    // vector<Segment> vS(3);
+    find_intersections_bruteforce(vS);
 
-    // for (const Segment& s : vS)
-    //     for (const Segment& ss : vS)
-    //         cout << s << " cross " << ss << ": "
-    //             << (s.has_intersection(ss) ? "true" : "false") << '\n';
-
-    // cout << '\n';
+    // find_intersections(vS);
 
     return 0;
 }
