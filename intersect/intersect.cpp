@@ -1,8 +1,9 @@
 
 #include <vector>
 #include <iostream>
-#include <numeric>  // gcd(), lcm()
+#include <numeric>  // struct Rat: gcd(), lcm()
 #include <optional> // optional<Point> intersection()
+#include <set>      // find_intersections()
 
 using namespace std;
 
@@ -214,6 +215,18 @@ public:
         return P;
     }
 
+    Point upper() const {
+        if (A.y != B.y)
+            return (A.y < B.y ? A : B);
+        return (A.x <= B.x ? A : B);
+    }
+
+    Point lower() const {
+        if (A.y != B.y)
+            return (A.y > B.y ? A : B);
+        return (A.x >= B.x ? A : B);
+    }
+
     friend ostream& operator<<(ostream&, const Segment&);
 };
 
@@ -263,21 +276,50 @@ void find_intersections_bruteforce(const vector<Segment>& vS) {
 }
 
 
-enum class Kind { Begin, End, Intersection };
+enum class Kind { upper, containing, lower };
 
 struct Event {
-    Point P;
-    Kind  kind;
+    Point  P;
+    Kind   kind;
     size_t i, j;
+    Event(Point P, Kind kind, size_t i, size_t j = 0)
+        : P(P), kind(kind), i(i), j(j) {};
+};
+
+struct EventCmp {
+    bool operator()(const Event& e1, const Event& e2) const {
+        if (e1.P.y != e2.P.y)
+            return e1.P.y < e2.P.y;
+        if (e1.P.x != e2.P.x)
+            return e1.P.x < e2.P.x;
+        if (e1.kind != e2.kind)
+            return (int)e1.kind < (int)e2.kind;
+        return e1.i < e2.i;
+    }
+};
+
+// TODO
+struct SegmentCmp {
+    bool operator()(const Segment& s1, const Segment& s2) const;
 };
 
 // Bentley-Ottmann
-void find_intersections(const vector<Segment>& vS);
+void find_intersections(const vector<Segment>& vS) {
+
+    set<Event,   EventCmp>   events;
+    // set<Segment, SegmentCmp> status;
+
+    for (int i = 0; i < vS.size(); ++i) {
+        events.insert(Event(vS[i].upper(), Kind::upper, i));
+        events.insert(Event(vS[i].lower(), Kind::lower, i));
+    }
+
+}
 
 
 int main() {
 
-    vector<Segment> vS = demo();
+    const vector<Segment> vS = demo();
 
     find_intersections_bruteforce(vS);
 
